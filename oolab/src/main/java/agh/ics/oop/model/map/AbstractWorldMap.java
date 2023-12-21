@@ -31,24 +31,20 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
-    public void move(Animal animal, MoveDirection direction){
-        Vector2d startingPosition = animal.getPosition();
-        animal.move(direction, this);
+    public void update(){
+        for (Animal animal : animals.values()){
+            Vector2d startingPosition = animal.getPosition();
+            animal.update(this);
 
-        if (canMoveTo(animal.getPosition())){
-            animals.put(animal.getPosition(), animal);
-            animals.remove(startingPosition);
-            mapChanged("Animal moved from position " + startingPosition + " into position " + animal.getPosition());
+            if (canMoveTo(animal.getPosition())){
+                animals.put(animal.getPosition(), animal);
+                animals.remove(startingPosition);
+                mapChanged("Animal moved from position " + startingPosition + " into position " + animal.getPosition());
+            }
+            else{
+                mapChanged("Nie pyklo" + animal.getDirection());
+            }
         }
-
-//        try {
-//            place(animal);
-//            animals.remove(startingPosition);
-//            mapChanged("Animal moved into position " + animal.getPosition());
-//        }
-//        catch(PositionAlreadyOccupiedException e) {
-//            System.out.println("Animal did not move");
-//        }
     }
 
     @Override

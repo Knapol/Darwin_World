@@ -1,42 +1,44 @@
 package agh.ics.oop.model;
 
 public enum MapDirection {
-    NORTH, SOUTH, WEST, EAST;
+    NORTH,
+    NORTHEAST,
+    EAST,
+    SOUTHEAST,
+    SOUTH,
+    SOUTHWEST,
+    WEST,
+    NORTHWEST;
 
     @Override
     public String toString(){
         return switch (this){
-            case NORTH -> "Północ";
-            case SOUTH -> "Południe";
-            case WEST -> "Zachód";
-            case EAST -> "Wschód";
+            case NORTH -> "North";
+            case NORTHEAST -> "North East";
+            case EAST -> "East";
+            case SOUTHEAST -> "South East";
+            case SOUTH -> "South";
+            case SOUTHWEST -> "South West";
+            case WEST -> "West";
+            case NORTHWEST -> "North West";
         };
     }
 
-    public MapDirection next(){
-        return switch (this){
-            case NORTH -> EAST;
-            case SOUTH -> WEST;
-            case WEST -> NORTH;
-            case EAST -> SOUTH;
-        };
-    }
-
-    public MapDirection previous(){
-        return switch (this){
-            case NORTH -> WEST;
-            case SOUTH -> EAST;
-            case WEST -> SOUTH;
-            case EAST -> NORTH;
-        };
+    public MapDirection rotate(int rotationAngle){
+        MapDirection[] values = MapDirection.values();
+        return values[(this.ordinal() + rotationAngle) % values.length];
     }
 
     public Vector2d toUnitVector(){
         return switch (this){
             case NORTH -> new Vector2d(0, 1);
-            case SOUTH -> new Vector2d(0, -1);
-            case WEST -> new Vector2d(-1, 0);
+            case NORTHEAST -> new Vector2d(1, 1);
             case EAST -> new Vector2d(1, 0);
+            case SOUTHEAST -> new Vector2d(1, -1);
+            case SOUTH -> new Vector2d(0, -1);
+            case SOUTHWEST -> new Vector2d(-1, -1);
+            case WEST -> new Vector2d(-1, 0);
+            case NORTHWEST -> new Vector2d(-1, 1);
         };
     }
 }

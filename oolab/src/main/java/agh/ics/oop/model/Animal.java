@@ -5,6 +5,10 @@ import agh.ics.oop.model.map.MoveValidator;
 public class Animal implements WorldElement{
     private MapDirection direction;
     private Vector2d position;
+    private final int[] genome = {0, 1, 5, 6, 7, 6};
+    private int activeGenomeID;
+    private int energy;
+    private int daysAlive;
 
     public Animal(Vector2d position){
         this.direction = MapDirection.NORTH;
@@ -18,9 +22,13 @@ public class Animal implements WorldElement{
     public String toString(){
         return switch(direction){
             case NORTH -> "N";
+            case NORTHEAST -> "NE";
             case EAST -> "E";
+            case SOUTHEAST -> "SE";
             case SOUTH -> "S";
+            case SOUTHWEST -> "SW";
             case WEST -> "W";
+            case NORTHWEST -> "NW";
         };
     }
 
@@ -28,24 +36,26 @@ public class Animal implements WorldElement{
         return this.position.equals(position);
     }
 
-    public void move(MoveDirection moveDirection, MoveValidator moveValidator){
+    public void update(MoveValidator moveValidator){
+        rotate();
+        move(moveValidator);
+    }
+
+    private void rotate(){
+        direction = direction.rotate(genome[activeGenomeID]);
+        activeGenomeID++;
+        if (activeGenomeID >= genome.length){
+            activeGenomeID = 0;
+        }
+    }
+
+    private void move(MoveValidator moveValidator){
         Vector2d testPosition;
 
-        switch (moveDirection){
-            case LEFT -> direction = direction.previous();
-            case RIGHT -> direction = direction.next();
-            case FORWARD -> {
-                testPosition = position.add(direction.toUnitVector());
-                if (moveValidator.canMoveTo(testPosition)){
-                    position = testPosition;
-                }
-            }
-            case BACKWARD -> {
-                testPosition = position.subtract(direction.toUnitVector());
-                if (moveValidator.canMoveTo(testPosition)){
-                    position = testPosition;
-                }
-            }
+        testPosition = position.add(direction.toUnitVector());
+
+        if (moveValidator.canMoveTo(testPosition)){
+            position = testPosition;
         }
     }
 

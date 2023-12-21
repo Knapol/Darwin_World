@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface WorldMap extends MoveValidator {
     void place(Animal animal) throws PositionAlreadyOccupiedException;
 
-    void move(Animal animal, MoveDirection direction);
+    void update();
 
     boolean isOccupied(Vector2d position);
 

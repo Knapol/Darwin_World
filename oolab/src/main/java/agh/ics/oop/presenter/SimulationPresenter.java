@@ -110,10 +110,9 @@ public class SimulationPresenter implements MapChangeListener {
 
     public void onSimulationStartClicked(){
         String[] args = movesField.getText().split(" ");
-        List<MoveDirection> directions = OptionsParser.returnMoveDirection(args);
         List<Vector2d> positions = List.of(new Vector2d(0, 0), new Vector2d(3, 4));
 
-        Simulation simulation = new Simulation(positions, directions, worldMap);
+        Simulation simulation = new Simulation(positions, worldMap);
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
 
         simulationEngine.runAsync();
