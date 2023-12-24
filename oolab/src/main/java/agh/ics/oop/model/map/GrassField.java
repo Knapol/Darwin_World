@@ -57,10 +57,10 @@ public class GrassField extends AbstractWorldMap {
         return grasses.get(position);
     }
 
-    @Override
-    public ArrayList<WorldElement> getElements(){
-        ArrayList<WorldElement> updatedMap = super.getElements();
-        updatedMap.addAll(grasses.values());
-        return updatedMap;
-    }
+//    @Override
+//    public ArrayList<WorldElement> getElements(){
+//        ArrayList<WorldElement> updatedMap = super.getElements();
+//        updatedMap.addAll(grasses.values());
+//        return updatedMap;
+//    }
 }

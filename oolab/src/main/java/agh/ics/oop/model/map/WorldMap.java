@@ -5,12 +5,13 @@ import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 import agh.ics.oop.model.map.MoveValidator;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 public interface WorldMap extends MoveValidator {
     void place(Animal animal) throws PositionAlreadyOccupiedException;
 
-    void update();
+    void move(Animal animal);
 
     boolean isOccupied(Vector2d position);
 

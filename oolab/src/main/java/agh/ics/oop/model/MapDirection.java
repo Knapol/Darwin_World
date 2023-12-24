@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import java.util.Random;
+
 public enum MapDirection {
     NORTH,
     NORTHEAST,
@@ -9,6 +11,8 @@ public enum MapDirection {
     SOUTHWEST,
     WEST,
     NORTHWEST;
+
+    private static final Random randomGenerator = new Random();
 
     @Override
     public String toString(){
@@ -40,5 +44,10 @@ public enum MapDirection {
             case WEST -> new Vector2d(-1, 0);
             case NORTHWEST -> new Vector2d(-1, 1);
         };
+    }
+
+    public static MapDirection randomDirection(){
+        MapDirection[] values = MapDirection.values();
+        return values[randomGenerator.nextInt(values.length)];
     }
 }

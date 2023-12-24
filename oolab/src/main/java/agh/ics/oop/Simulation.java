@@ -12,14 +12,17 @@ import java.util.Collections;
 public class Simulation implements Runnable {
     private final List<Animal> animals = new ArrayList<>();
     private final WorldMap map;
-    public Simulation(List<Vector2d> startPositions, WorldMap map){
+    private int genomeSize;
+
+    public Simulation(List<Vector2d> startPositions, WorldMap map, int genomeSize){
         this.map = map;
+        this.genomeSize = genomeSize;
         createAndPlaceAnimals(startPositions);
     }
 
     private void createAndPlaceAnimals(List<Vector2d> startPositions){
         for (Vector2d pos : startPositions){
-            Animal newAnimal = new Animal(pos);
+            Animal newAnimal = new Animal(pos, genomeSize);
             try {
                 map.place(newAnimal);
                 this.animals.add(newAnimal);
@@ -32,12 +35,18 @@ public class Simulation implements Runnable {
     public void run() {
         try {
             for (int i = 0; i < 10; i++){ // for test purpose 10 is ten days
-                map.update();
-                Thread.sleep(500);
+                moveAllAnimals();
+                Thread.sleep(1000);
             }
         }
         catch(InterruptedException e){
             e.printStackTrace();
+        }
+    }
+
+    private void moveAllAnimals(){
+        for (Animal animal : animals){
+            map.move(animal);
         }
     }
 

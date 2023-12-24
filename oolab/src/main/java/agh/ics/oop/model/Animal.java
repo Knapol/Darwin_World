@@ -2,20 +2,26 @@ package agh.ics.oop.model;
 
 import agh.ics.oop.model.map.MoveValidator;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class Animal implements WorldElement{
     private MapDirection direction;
     private Vector2d position;
-    private final int[] genome = {0, 1, 5, 6, 7, 6};
+    private final int[] genome;
     private int activeGenomeID;
+
     private int energy;
     private int daysAlive;
 
-    public Animal(Vector2d position){
-        this.direction = MapDirection.NORTH;
+    private int numberOfChildren;
+    private int numberOfDescendants;
+
+    public Animal(Vector2d position, int genomeSize){
+        this.direction = MapDirection.randomDirection();
         this.position = position;
-    }
-    public Animal(){
-        this(new Vector2d(2,2));
+        genome = new int[genomeSize];
+        createGenome(genomeSize);
     }
 
     @Override
@@ -59,11 +65,34 @@ public class Animal implements WorldElement{
         }
     }
 
+    private void createGenome(int genomeSize){
+        Random randomGenerator = new Random();
+        for (int i=0; i<genomeSize; i++){
+            genome[i] = randomGenerator.nextInt(8); //maybe file for all static
+        }
+    }
+
     public MapDirection getDirection(){
         return direction;
     }
 
     public Vector2d getPosition(){
         return position;
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    public int getDaysAlive(){
+        return daysAlive;
+    }
+
+    public int getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public int getNumberOfDescendants() {
+        return numberOfDescendants;
     }
 }
