@@ -10,18 +10,22 @@ public class Animal implements WorldElement{
     private Vector2d position;
     private final int[] genome;
     private int activeGenomeID;
-
-    private int energy;
+    private int energy = 10;
     private int daysAlive;
-
     private int numberOfChildren;
     private int numberOfDescendants;
 
     public Animal(Vector2d position, int genomeSize){
         this.direction = MapDirection.randomDirection();
         this.position = position;
-        genome = new int[genomeSize];
+        this.genome = new int[genomeSize];
         createGenome(genomeSize);
+    }
+
+    public Animal(Vector2d position, int[] genome){
+        this.direction = MapDirection.randomDirection();
+        this.position = position;
+        this.genome = genome;
     }
 
     @Override
@@ -63,6 +67,42 @@ public class Animal implements WorldElement{
         if (moveValidator.canMoveTo(testPosition)){
             position = testPosition;
         }
+    }
+
+    public Animal breed(Animal other, int minEnergyToBreed){
+        if (this.energy < minEnergyToBreed || other.energy < minEnergyToBreed){
+            return null;
+        }
+
+        return new Animal(this.position, createNewGenome(this.genome, this.energy, other.genome, other.energy));
+    }
+
+    private static int[] createNewGenome(int[] genome1, int energy1, int[] genome2,  int energy2){
+        int genomeSize = genome1.length;
+
+        if (Math.random() > 0.5){
+            int[] tempGenome = genome1;
+            genome1 = genome2;
+            genome2 = tempGenome;
+
+            int tempEnergy = energy1;
+            energy1 = energy2;
+            energy2 = tempEnergy;
+        }
+
+        int ratio = Math.min(energy1/energy2, energy2/energy1);
+        int midPoint = (energy1 >= energy2) ? ratio*genomeSize : genomeSize - genomeSize*ratio;
+
+        int[] newGenome = new int[genomeSize];
+        for (int i=0; i<midPoint; i++){
+            newGenome[i] = genome1[i];
+        }
+
+        for (int i=midPoint; i<genomeSize; i++){
+            newGenome[i] = genome2[i];
+        }
+
+        return newGenome;
     }
 
     private void createGenome(int genomeSize){

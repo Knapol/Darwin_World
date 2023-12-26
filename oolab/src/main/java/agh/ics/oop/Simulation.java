@@ -34,9 +34,15 @@ public class Simulation implements Runnable {
     }
     public void run() {
         try {
-            for (int i = 0; i < 10; i++){ // for test purpose 10 is ten days
-                moveAllAnimals();
-                Thread.sleep(1000);
+            for (int i = 0; i < 100; i++){ // for test purpose 10 is ten days
+//                moveAllAnimals();
+
+                for (Animal animal : animals){
+                    map.move(animal);
+                    Thread.sleep(100);
+                }
+                map.breedAnimals(animals);
+
             }
         }
         catch(InterruptedException e){

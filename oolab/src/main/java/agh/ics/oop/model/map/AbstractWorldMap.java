@@ -41,6 +41,24 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
+    public void breedAnimals(List<Animal> animalsList){
+        for (List<Animal> animalsOnPos : animals.values()){
+            if (animalsOnPos.size() < 2) {
+                continue;
+            }
+
+            //need to implement function that will sort the animals on position
+            Animal animal1 = animalsOnPos.get(0);
+            Animal animal2 = animalsOnPos.get(1);
+
+            Animal child = animal1.breed(animal2, 5);
+            if (child != null) {
+                animals.get(child.getPosition()).add(child);
+                animalsList.add(child);
+            }
+        }
+    }
 
     @Override
     public void place(Animal animal) throws PositionAlreadyOccupiedException {
@@ -62,22 +80,44 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public boolean isOccupied(Vector2d position){
+//        System.out.println(animals.get(position));
         return animals.containsKey(position);
     }
 
     @Override
     public WorldElement objectAt(Vector2d position){
         if (animals.get(position) != null) {
-            return animals.get(position).get(0);
+                return animals.get(position).get(0);
         }
         return null;
     }
 
     @Override
     public ArrayList<WorldElement> getElements(){
+//        ArrayList<WorldElement> allAnimals = new ArrayList<>();
+//        for (List<Animal> setOfAnimals : animals.values()){
+//            allAnimals.addAll(setOfAnimals);
+//        }
+//        ArrayList<WorldElement> allAnimals = new ArrayList<>();
+//        for (List<Animal> setOfAnimals : animals.values()) {
+//            Iterator<Animal> iterator = setOfAnimals.iterator();
+//            while (iterator.hasNext()) {
+//                Animal animal = iterator.next();
+//                allAnimals.add(animal);
+//            }
+//        }
         ArrayList<WorldElement> allAnimals = new ArrayList<>();
-        for (List<Animal> setOfAnimals : animals.values()){
-            allAnimals.addAll(setOfAnimals);
+        try {
+            for (List<Animal> setOfAnimals : new ArrayList<>(animals.values())) {
+                Iterator<Animal> iterator = setOfAnimals.iterator();
+                while (iterator.hasNext()) {
+                    Animal animal = iterator.next();
+                    allAnimals.add(animal);
+                }
+            }
+        }catch (ConcurrentModificationException e){
+            System.out.println(allAnimals.size());
+            e.printStackTrace();
         }
         return allAnimals;
     }
