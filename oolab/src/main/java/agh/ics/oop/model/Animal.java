@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.map.MoveValidator;
+import agh.ics.oop.model.map.WorldMap;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -14,17 +15,21 @@ public class Animal implements WorldElement{
     private int daysAlive;
     private int numberOfChildren;
     private int numberOfDescendants;
+    private WorldMap map;
 
-    public Animal(Vector2d position, int genomeSize){
+    public Animal(Vector2d position, WorldMap map){
         this.direction = MapDirection.randomDirection();
         this.position = position;
-        this.genome = new int[genomeSize];
-        createGenome(genomeSize);
+        this.map = map;
+        this.genome = new int[map.getGenomeSize()];
+        this.energy = map.getStartingEnergy();
+        createGenome(map.getGenomeSize());
     }
 
-    public Animal(Vector2d position, int[] genome){
+    public Animal(Vector2d position, WorldMap map, int[] genome){
         this.direction = MapDirection.randomDirection();
         this.position = position;
+        this.map = map;
         this.genome = genome;
     }
 
@@ -67,14 +72,15 @@ public class Animal implements WorldElement{
         if (moveValidator.canMoveTo(testPosition)){
             position = testPosition;
         }
+        this.energy -= 1;
     }
 
-    public Animal breed(Animal other, int minEnergyToBreed){
-        if (this.energy < minEnergyToBreed || other.energy < minEnergyToBreed){
+    public Animal breed(Animal other){
+        if (this.energy < map.getMinEnergyToBreed() || other.energy < map.getMinEnergyToBreed()){
             return null;
         }
 
-        return new Animal(this.position, createNewGenome(this.genome, this.energy, other.genome, other.energy));
+        return new Animal(this.position, this.map, createNewGenome(this.genome, this.energy, other.genome, other.energy));
     }
 
     private static int[] createNewGenome(int[] genome1, int energy1, int[] genome2,  int energy2){

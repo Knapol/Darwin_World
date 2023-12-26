@@ -1,7 +1,7 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.map.AbstractWorldMap;
-import agh.ics.oop.model.map.GrassField;
+import agh.ics.oop.model.map.ForestedEquators;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
@@ -19,8 +19,7 @@ public class SimulationApp extends Application {
         SimulationPresenter presenter = loader.getController();
 
 //        ConsoleMapDisplay consoleMapDisplay = new ConsoleMapDisplay();
-        AbstractWorldMap map = new GrassField(5);
-//        AbstractWorldMap map = new RectangularMap(9,5);
+        AbstractWorldMap map = new ForestedEquators(10,10, 6, 20, 8, 1);
 //        map.addObserver(consoleMapDisplay);
         map.addObserver(presenter);
         presenter.setWorldMap(map);

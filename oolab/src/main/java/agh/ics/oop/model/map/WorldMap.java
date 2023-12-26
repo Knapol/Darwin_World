@@ -25,4 +25,10 @@ public interface WorldMap extends MoveValidator {
     UUID getId();
 
     Boundary getCurrentBounds();
+
+    int getStartingEnergy();
+
+    int getGenomeSize();
+
+    int getMinEnergyToBreed();
 }

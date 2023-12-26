@@ -5,14 +5,37 @@ import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
-
+// ziemia to po prostu abstract worldMap (BO TAK PROSCIEJ OKOKOK)
 public abstract class AbstractWorldMap implements WorldMap {
+    private static final Vector2d LOWER_LEFT_BORDER = new Vector2d(0,0);
+    private final Vector2d UPPER_RIGHT_BORDER;
     protected UUID id = UUID.randomUUID();
     protected HashMap<Vector2d, List<Animal>> animals = new HashMap<>();
     protected List<MapChangeListener> observers = new ArrayList<>();
     protected MapVisualizer mapVisualizer = new MapVisualizer(this);
 
-//    abstract public Boundary getCurrentBounds();
+    protected int genomeSize;
+    protected int startingEnergy;
+    protected int minEnergyToBreed;
+    protected int moveCost;
+
+    public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost){
+        this.genomeSize = genomeSize;
+        this.startingEnergy = startingEnergy;
+        this.minEnergyToBreed = minEnergyToBreed;
+        this.moveCost = moveCost;
+        this.UPPER_RIGHT_BORDER = new Vector2d(width-1, height-1);
+
+//        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(
+//                (int)Math.sqrt(10*numberOfGrass),
+//                (int)Math.sqrt(10*numberOfGrass),
+//                numberOfGrass
+//        );
+//
+//        for(Vector2d grassPosition : randomPositionGenerator) {
+//            grasses.put(grassPosition, new Grass(grassPosition));
+//        }
+    }
 
     @Override
     public String toString(){
@@ -52,7 +75,7 @@ public abstract class AbstractWorldMap implements WorldMap {
             Animal animal1 = animalsOnPos.get(0);
             Animal animal2 = animalsOnPos.get(1);
 
-            Animal child = animal1.breed(animal2, 5);
+            Animal child = animal1.breed(animal2);
             if (child != null) {
                 animals.get(child.getPosition()).add(child);
                 animalsList.add(child);
@@ -94,32 +117,16 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public ArrayList<WorldElement> getElements(){
-//        ArrayList<WorldElement> allAnimals = new ArrayList<>();
-//        for (List<Animal> setOfAnimals : animals.values()){
-//            allAnimals.addAll(setOfAnimals);
-//        }
-//        ArrayList<WorldElement> allAnimals = new ArrayList<>();
-//        for (List<Animal> setOfAnimals : animals.values()) {
-//            Iterator<Animal> iterator = setOfAnimals.iterator();
-//            while (iterator.hasNext()) {
-//                Animal animal = iterator.next();
-//                allAnimals.add(animal);
-//            }
-//        }
         ArrayList<WorldElement> allAnimals = new ArrayList<>();
-        try {
-            for (List<Animal> setOfAnimals : new ArrayList<>(animals.values())) {
-                Iterator<Animal> iterator = setOfAnimals.iterator();
-                while (iterator.hasNext()) {
-                    Animal animal = iterator.next();
-                    allAnimals.add(animal);
-                }
-            }
-        }catch (ConcurrentModificationException e){
-            System.out.println(allAnimals.size());
-            e.printStackTrace();
+        for (List<Animal> setOfAnimals : animals.values()){
+            allAnimals.addAll(setOfAnimals);
         }
         return allAnimals;
+    }
+
+    @Override
+    public Boundary getCurrentBounds(){
+        return new Boundary(LOWER_LEFT_BORDER, UPPER_RIGHT_BORDER);
     }
 
     public void addObserver(MapChangeListener mapChangeListener){
@@ -134,5 +141,20 @@ public abstract class AbstractWorldMap implements WorldMap {
         for (MapChangeListener mapChangeListener : observers){
             mapChangeListener.mapChanged(this, message);
         }
+    }
+
+    @Override
+    public int getStartingEnergy(){
+        return startingEnergy;
+    }
+
+    @Override
+    public int getGenomeSize(){
+        return genomeSize;
+    }
+
+    @Override
+    public int getMinEnergyToBreed(){
+        return minEnergyToBreed;
     }
 }

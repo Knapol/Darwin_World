@@ -122,7 +122,7 @@ public class SimulationPresenter implements MapChangeListener {
                 new Vector2d(1,1)
         );
 
-        Simulation simulation = new Simulation(positions, worldMap, 6);
+        Simulation simulation = new Simulation(positions, worldMap);
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
 
         simulationEngine.runAsync();
