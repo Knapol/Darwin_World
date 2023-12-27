@@ -6,6 +6,7 @@ import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
 
@@ -32,13 +33,30 @@ public class Simulation implements Runnable {
     }
     public void run() {
         try {
-            for (int i = 0; i < 100; i++){ // for test purpose 10 is ten days
-//                moveAllAnimals();
+            for (int i = 0; i < 100; i++){ // for test purpose 100 is ten days
 
-                for (Animal animal : animals){
+                Iterator<Animal> it = animals.iterator();
+                while (it.hasNext()){
+                    Animal animal = it.next();
+                    if (animal.getEnergy() <= 0){
+                        it.remove();
+                    }
                     map.move(animal);
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 }
+
+                if (animals.size() == 0){
+                    System.out.println("All dead sadge");
+                    return;
+                }
+//
+//                for (Animal animal : animals){
+//                    if (animal.getEnergy() <= 0){
+//                        animals.remove(animal);
+//                    }
+//                    map.move(animal);
+//                    Thread.sleep(5000);
+//                }
                 map.breedAnimals(animals);
             }
         }

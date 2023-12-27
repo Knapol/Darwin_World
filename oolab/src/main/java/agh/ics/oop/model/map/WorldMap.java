@@ -31,4 +31,6 @@ public interface WorldMap extends MoveValidator {
     int getGenomeSize();
 
     int getMinEnergyToBreed();
+
+    int getMoveCost();
 }

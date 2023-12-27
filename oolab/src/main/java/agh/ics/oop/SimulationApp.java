@@ -19,7 +19,7 @@ public class SimulationApp extends Application {
         SimulationPresenter presenter = loader.getController();
 
 //        ConsoleMapDisplay consoleMapDisplay = new ConsoleMapDisplay();
-        AbstractWorldMap map = new ForestedEquators(10,10, 6, 20, 8, 1);
+        AbstractWorldMap map = new ForestedEquators(10,10, 6, 20, 8, 2);
 //        map.addObserver(consoleMapDisplay);
         map.addObserver(presenter);
         presenter.setWorldMap(map);

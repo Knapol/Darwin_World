@@ -26,15 +26,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         this.moveCost = moveCost;
         this.UPPER_RIGHT_BORDER = new Vector2d(width-1, height-1);
 
-//        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(
-//                (int)Math.sqrt(10*numberOfGrass),
-//                (int)Math.sqrt(10*numberOfGrass),
-//                numberOfGrass
-//        );
-//
-//        for(Vector2d grassPosition : randomPositionGenerator) {
-//            grasses.put(grassPosition, new Grass(grassPosition));
-//        }
     }
 
     @Override
@@ -49,6 +40,14 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public void move(Animal animal){
+        if (animal.getEnergy() <= 0){
+            animals.get(animal.getPosition()).remove(animal);
+            if (animals.get(animal.getPosition()).isEmpty()){
+                animals.remove(animal.getPosition());
+            }
+            return;
+        }
+
         Vector2d startingPosition = animal.getPosition();
         animal.update(this);
 
@@ -156,5 +155,10 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public int getMinEnergyToBreed(){
         return minEnergyToBreed;
+    }
+
+    @Override
+    public int getMoveCost() {
+        return moveCost;
     }
 }
