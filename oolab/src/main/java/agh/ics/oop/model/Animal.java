@@ -4,7 +4,9 @@ import agh.ics.oop.model.map.MoveValidator;
 import agh.ics.oop.model.map.WorldMap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class Animal implements WorldElement{
     private MapDirection direction;
@@ -28,12 +30,14 @@ public class Animal implements WorldElement{
         createGenome(map.getGenomeSize());
     }
 
-    public Animal(Vector2d position, WorldMap map, int[] genome, int energy){
+    public Animal(Vector2d position, WorldMap map, int[] genome, int energy, Animal father, Animal mother){
         this.direction = MapDirection.randomDirection();
         this.position = position;
         this.map = map;
         this.genome = genome;
         this.energy = energy;
+        this.father = father;
+        this.mother = mother;
     }
 
     @Override
@@ -92,10 +96,29 @@ public class Animal implements WorldElement{
         }
 
         position = testPosition;
+    }
 
-//        if (moveValidator.canMoveTo(testPosition)){
-//            position = testPosition;
-//        }
+    private void dfsVisit(Animal animal, Set<Animal> visited){
+        animal.numberOfDescendants++;
+        visited.add(animal);
+
+        if (!visited.contains(animal.mother) && animal.mother != null) {
+            dfsVisit(animal.mother, visited);
+        }
+
+        if (!visited.contains(animal.father) && animal.father != null){
+            dfsVisit(animal.father, visited);
+        }
+    }
+
+    private void updateDescendants(Animal other){
+        Set<Animal> visited = new HashSet<>();
+
+        dfsVisit(this, visited);
+
+        if (!visited.contains(other)) {
+            dfsVisit(other, visited);
+        }
     }
 
     public Animal breed(Animal other){
@@ -108,11 +131,18 @@ public class Animal implements WorldElement{
         this.energy -= map.getMinEnergyToBreed();
         other.energy -= map.getMinEnergyToBreed();
 
+        updateDescendants(other);
+
+        this.numberOfChildren++;
+        this.numberOfChildren++;
+
         int childEnergy = 2 * map.getMinEnergyToBreed();
 
-        return new Animal(this.position, this.map, childGenome, childEnergy);
+        return new Animal(this.position, this.map, childGenome, childEnergy, this, other);
     }
 
+
+    // put the genome methods into new class, maybe class Genome (?)
     private static int[] createNewGenome(int[] genome1, int energy1, int[] genome2, int energy2){
         int genomeSize = genome1.length;
 

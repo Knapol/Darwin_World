@@ -42,7 +42,6 @@ public class Simulation implements Runnable {
                         it.remove();
                     }
                     map.move(animal);
-
                 }
 
                 if (animals.isEmpty()){
@@ -56,6 +55,12 @@ public class Simulation implements Runnable {
                 map.createNewGrass();
                 map.mapChanged("New frame");
                 Thread.sleep(500);
+                System.out.println(
+                        animals.get(0).getNumberOfDescendants() + " " +
+                        animals.get(1).getNumberOfDescendants() + " " +
+                        animals.get(2).getNumberOfDescendants() + " " +
+                        animals.get(3).getNumberOfDescendants()
+                );
             }
         }
         catch(InterruptedException e){
