@@ -13,6 +13,8 @@ public class Animal implements WorldElement{
     private int activeGenomeID;
     private int energy = 10;
     private int daysAlive;
+    private Animal father;
+    private Animal mother;
     private int numberOfChildren;
     private int numberOfDescendants;
     private WorldMap map;
@@ -144,6 +146,10 @@ public class Animal implements WorldElement{
         for (int i=0; i<genomeSize; i++){
             genome[i] = randomGenerator.nextInt(8); //maybe file for all static
         }
+    }
+
+    public void eat(int grassEnergy){
+        this.energy += grassEnergy;
     }
 
     public MapDirection getDirection(){

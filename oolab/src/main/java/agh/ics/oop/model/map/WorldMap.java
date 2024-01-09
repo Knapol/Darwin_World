@@ -16,6 +16,8 @@ public interface WorldMap extends MoveValidator {
 
     void breedAnimals(List<Animal> animalsList);
 
+    void eatGrass();
+
     boolean isOccupied(Vector2d position);
 
     WorldElement objectAt(Vector2d position);
@@ -26,6 +28,8 @@ public interface WorldMap extends MoveValidator {
 
     Boundary getCurrentBounds();
 
+    void createNewGrass();
+
     int getStartingEnergy();
 
     int getGenomeSize();
@@ -33,4 +37,6 @@ public interface WorldMap extends MoveValidator {
     int getMinEnergyToBreed();
 
     int getMoveCost();
+
+    void mapChanged(String message);
 }

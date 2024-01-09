@@ -1,15 +1,13 @@
 package agh.ics.oop;
 
-import agh.ics.oop.model.Animal;
-import agh.ics.oop.model.ConsoleMapDisplay;
-import agh.ics.oop.model.Vector2d;
-import agh.ics.oop.model.WorldElement;
+import agh.ics.oop.model.*;
 import agh.ics.oop.model.map.AbstractWorldMap;
 import javafx.application.Application;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class Main {
     public static void main(String[] args){

@@ -42,22 +42,20 @@ public class Simulation implements Runnable {
                         it.remove();
                     }
                     map.move(animal);
-                    Thread.sleep(1000);
+
                 }
 
-                if (animals.size() == 0){
+                if (animals.isEmpty()){
                     System.out.println("All dead sadge");
                     return;
                 }
-//
-//                for (Animal animal : animals){
-//                    if (animal.getEnergy() <= 0){
-//                        animals.remove(animal);
-//                    }
-//                    map.move(animal);
-//                    Thread.sleep(5000);
-//                }
+
                 map.breedAnimals(animals);
+
+                map.eatGrass();
+                map.createNewGrass();
+                map.mapChanged("New frame");
+                Thread.sleep(500);
             }
         }
         catch(InterruptedException e){

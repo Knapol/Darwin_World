@@ -11,6 +11,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     private final Vector2d UPPER_RIGHT_BORDER;
     protected UUID id = UUID.randomUUID();
     protected HashMap<Vector2d, List<Animal>> animals = new HashMap<>();
+    protected HashMap<Vector2d, Grass> grasses = new HashMap<>();
     protected List<MapChangeListener> observers = new ArrayList<>();
     protected MapVisualizer mapVisualizer = new MapVisualizer(this);
 
@@ -18,14 +19,15 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected int startingEnergy;
     protected int minEnergyToBreed;
     protected int moveCost;
+    protected int grassEnergy;
 
-    public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost){
+    public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost, int grassEnergy){
         this.genomeSize = genomeSize;
         this.startingEnergy = startingEnergy;
         this.minEnergyToBreed = minEnergyToBreed;
         this.moveCost = moveCost;
         this.UPPER_RIGHT_BORDER = new Vector2d(width-1, height-1);
-
+        this.grassEnergy = grassEnergy;
     }
 
     @Override
@@ -59,7 +61,6 @@ public abstract class AbstractWorldMap implements WorldMap {
             if (animals.get(startingPosition).isEmpty()){
                 animals.remove(startingPosition);
             }
-            mapChanged("Animal moved from position " + startingPosition + " into position " + animal.getPosition());
         }
     }
 
@@ -81,6 +82,21 @@ public abstract class AbstractWorldMap implements WorldMap {
             }
         }
     }
+
+    @Override
+    public void eatGrass(){
+        Iterator<Vector2d> it = new HashSet<>(grasses.keySet()).iterator();
+        while (it.hasNext()){
+            Vector2d pos = it.next();
+            if (animals.get(pos) != null){
+                animals.get(pos).get(0).eat(this.grassEnergy);
+                grasses.remove(pos);
+                updateRandomPositionGenerator(pos);
+            }
+        }
+    }
+
+    protected abstract void updateRandomPositionGenerator(Vector2d pos);
 
     @Override
     public void place(Animal animal) throws PositionAlreadyOccupiedException {
@@ -136,7 +152,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         observers.remove(mapChangeListener);
     }
 
-    private void mapChanged(String message){
+    public void mapChanged(String message){
         for (MapChangeListener mapChangeListener : observers){
             mapChangeListener.mapChanged(this, message);
         }
