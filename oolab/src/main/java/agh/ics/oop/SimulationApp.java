@@ -2,7 +2,9 @@ package agh.ics.oop;
 
 import agh.ics.oop.model.map.AbstractWorldMap;
 import agh.ics.oop.model.map.ForestedEquators;
+import agh.ics.oop.presenter.InputPresenter;
 import javafx.application.Application;
+import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
@@ -14,15 +16,15 @@ import java.io.IOException;
 public class SimulationApp extends Application {
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
+        loader.setLocation(getClass().getClassLoader().getResource("input.fxml"));
         BorderPane viewRoot = loader.load();
-        SimulationPresenter presenter = loader.getController();
+//        InputPresenter presenter = loader.getController();
 
 //        ConsoleMapDisplay consoleMapDisplay = new ConsoleMapDisplay();
-        AbstractWorldMap map = new ForestedEquators(20,15, 6, 20, 1, 0, 50, 20);
+//        AbstractWorldMap map = new ForestedEquators(20,15, 6, 20, 10, 5, 50, 20);
 //        map.addObserver(consoleMapDisplay);
-        map.addObserver(presenter);
-        presenter.setWorldMap(map);
+//        map.addObserver(presenter);
+//        presenter.setWorldMap(map);
 
         configureStage(primaryStage, viewRoot);
 

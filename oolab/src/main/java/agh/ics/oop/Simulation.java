@@ -13,6 +13,7 @@ import java.util.Collections;
 public class Simulation implements Runnable {
     private final List<Animal> animals = new ArrayList<>();
     private final WorldMap map;
+    private boolean simulationIsRunning = true;
 
     public Simulation(List<Vector2d> startPositions, WorldMap map){
         this.map = map;
@@ -32,49 +33,52 @@ public class Simulation implements Runnable {
         }
     }
     public void run() {
-        try {
-            for (int i = 0; i < 100; i++){ // for test purpose 100 is ten days
-
-                Iterator<Animal> it = animals.iterator();
-                while (it.hasNext()){
-                    Animal animal = it.next();
-                    if (animal.getEnergy() <= 0){
-                        it.remove();
-                    }
-                    map.move(animal);
+        while (true){
+            try {
+                if (simulationIsRunning) {
+                    newSimulationDay();
+                } else {
+                    Thread.sleep(100);
                 }
-
-                if (animals.isEmpty()){
-                    System.out.println("All dead sadge");
-                    return;
-                }
-
-                map.breedAnimals(animals);
-
-                map.eatGrass();
-                map.createNewGrass();
-                map.mapChanged("New frame");
-                Thread.sleep(500);
-                System.out.println(
-                        animals.get(0).getNumberOfDescendants() + " " +
-                        animals.get(1).getNumberOfDescendants() + " " +
-                        animals.get(2).getNumberOfDescendants() + " " +
-                        animals.get(3).getNumberOfDescendants()
-                );
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
             }
         }
-        catch(InterruptedException e){
-            e.printStackTrace();
-        }
     }
 
-    private void moveAllAnimals(){
-        for (Animal animal : animals){
+    private void newSimulationDay() throws InterruptedException{
+        Iterator<Animal> it = animals.iterator();
+        while (it.hasNext()){
+            Animal animal = it.next();
+            if (animal.getEnergy() <= 0){
+                it.remove();
+            }
             map.move(animal);
         }
+
+        if (animals.isEmpty()){
+            System.out.println("All dead sadge");
+            return;
+        }
+
+        map.breedAnimals(animals);
+
+        map.eatGrass();
+        map.createNewGrass();
+        map.mapChanged("New frame");
+        Thread.sleep(500);
     }
 
-    public List<Animal> getAnimals(){
-        return Collections.unmodifiableList(animals);
+    public void pause(){
+        simulationIsRunning = false;
+    }
+
+    public void start(){
+        simulationIsRunning = true;
+    }
+
+    public boolean getSimulationState(){
+        return simulationIsRunning;
     }
 }

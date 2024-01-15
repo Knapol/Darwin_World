@@ -9,23 +9,19 @@ import agh.ics.oop.model.map.WorldMap;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.util.List;
 
 public class SimulationPresenter implements MapChangeListener {
     private WorldMap worldMap;
+    private Simulation simulation;
 
-//    @FXML
-//    private Label infoLabel;
-    @FXML
-    private TextField movesField;
-    @FXML
-    private Label moveInfo;
     @FXML
     private GridPane mapGrid;
 
@@ -40,12 +36,10 @@ public class SimulationPresenter implements MapChangeListener {
     public void mapChanged(WorldMap worldMap, String message){
         Platform.runLater(() -> {
             drawMap();
-            moveInfo.setText(message);
         });
     }
 
     private void drawMap(){
-//        infoLabel.setText(worldMap.toString());
         clearGrid();
         Boundary currentBound = worldMap.getCurrentBounds();
 
@@ -108,41 +102,26 @@ public class SimulationPresenter implements MapChangeListener {
         mapGrid.getRowConstraints().clear();
     }
 
-    public void onSimulationStartClicked(){
-        String[] args = movesField.getText().split(" ");
+    public void createSimulation(){
         List<Vector2d> positions = List.of(
                 new Vector2d(1, 1),
                 new Vector2d(1, 1),
                 new Vector2d(1,1),
                 new Vector2d(1, 1)
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(5, 5),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(5, 5),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1, 1),
-//                new Vector2d(1,1)
         );
 
-        Simulation simulation = new Simulation(positions, worldMap);
-        SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
+        simulation = new Simulation(positions, worldMap);
+        Thread thread = new Thread(simulation);
+        thread.start();
+    }
 
-        simulationEngine.runAsync();
+    @FXML
+    private void onPause(){
+        if (simulation.getSimulationState()) {
+            simulation.pause();
+        }
+        else{
+            simulation.start();
+        }
     }
 }

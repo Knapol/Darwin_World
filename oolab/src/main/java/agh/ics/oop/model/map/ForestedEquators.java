@@ -6,10 +6,10 @@ public class ForestedEquators extends AbstractWorldMap {
 
     private final RandomPositionGenerator randomPositionGenerator;
 
-    public ForestedEquators(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost, int grassCount, int grassEnergy){
-        super(width, height, genomeSize, startingEnergy, minEnergyToBreed, moveCost, grassEnergy);
+    public ForestedEquators(Settings settings){
+        super(settings);
 
-        this.randomPositionGenerator = new RandomPositionGenerator(width, height, grassCount);
+        this.randomPositionGenerator = new RandomPositionGenerator(settings.mapWidth(), settings.mapWidth(), settings.grassCount());
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }

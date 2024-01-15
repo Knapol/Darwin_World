@@ -24,10 +24,19 @@ public abstract class AbstractWorldMap implements WorldMap {
     public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost, int grassEnergy){
         this.genomeSize = genomeSize;
         this.startingEnergy = startingEnergy;
-        this.minEnergyToBreed = minEnergyToBreed;
         this.moveCost = moveCost;
+        this.minEnergyToBreed = minEnergyToBreed;
         this.UPPER_RIGHT_BORDER = new Vector2d(width-1, height-1);
         this.grassEnergy = grassEnergy;
+    }
+
+    public AbstractWorldMap(Settings settings){
+        this.genomeSize = settings.genomeSize();
+        this.startingEnergy = settings.startingEnergy();
+        this.moveCost = settings.moveCost();
+        this.minEnergyToBreed = settings.minEnergyToBreed();
+        this.UPPER_RIGHT_BORDER = new Vector2d(settings.mapWidth()-1, settings.mapHeight()-1);
+        this.grassEnergy = settings.grassEnergy();
     }
 
     @Override
