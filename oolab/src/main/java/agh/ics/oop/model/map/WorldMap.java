@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface WorldMap extends MoveValidator {
-    void place(Animal animal) throws PositionAlreadyOccupiedException;
+    void place(Animal animal);
 
     void move(Animal animal);
 
@@ -28,6 +28,8 @@ public interface WorldMap extends MoveValidator {
 
     Boundary getCurrentBounds();
 
+    void mapChanged(String message);
+
     void createNewGrass();
 
     int getStartingEnergy();
@@ -38,5 +40,8 @@ public interface WorldMap extends MoveValidator {
 
     int getMoveCost();
 
-    void mapChanged(String message);
+    int getStartingNumberOfAnimals();
+
+    int getWidth();
+    int getHeight();
 }

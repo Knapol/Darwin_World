@@ -26,6 +26,12 @@
             </HBox>
 
             <HBox>
+                <Label text="Number of animals"/>
+                <TextField fx:id="numberOfAnimals"/>
+            </HBox>
+
+
+            <HBox>
                 <Label text="Genome size"/>
                 <TextField fx:id="genomeSize"/>
             </HBox>

@@ -3,6 +3,7 @@ package agh.ics.oop.model;
 public record Settings(
         int mapWidth,
         int mapHeight,
+        int numberOfAnimals,
         int genomeSize,
         int startingEnergy,
         int moveCost,

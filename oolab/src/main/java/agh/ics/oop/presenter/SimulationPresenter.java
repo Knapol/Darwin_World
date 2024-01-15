@@ -10,12 +10,19 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.List;
 
 public class SimulationPresenter implements MapChangeListener {
@@ -25,8 +32,8 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private GridPane mapGrid;
 
-    private final static int CELL_WIDTH = 30;
-    private final static int CELL_HEIGHT = 30;
+    private final static int CELL_WIDTH = 50;
+    private final static int CELL_HEIGHT = 50;
 
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
@@ -81,16 +88,59 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     private void drawWorldElements(Boundary boundary) {
-        int width = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
-        int height = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
+        int width = worldMap.getWidth();
+        int height = worldMap.getHeight();
 
         for (int x = 1; x <= width; x++) {
             for (int y = height; y >= 1; y--) {
                 Vector2d pos = new Vector2d(x - 1 + boundary.lowerLeft().getX(), y - 1 + boundary.lowerLeft().getY());
+                Rectangle rectangle;
+
+                if (y-1 < 2*(height/5) || y-1 > 3*(height/5)-1){
+                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
+                }
+                else{
+                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(222,184,135));
+                }
+
+                rectangle.setStroke(Color.BLACK);
+                rectangle.setStrokeWidth(1);
+
                 if (worldMap.isOccupied(pos)) {
-                    Label label = new Label(worldMap.objectAt(pos).toString());
-                    mapGrid.add(label, x, height - y + 1);
-                    GridPane.setHalignment(label, HPos.CENTER);
+                    if (worldMap.objectAt(pos) instanceof Grass) {
+                        try {
+                            Image image = new Image(new FileInputStream("src/main/resources/images/grass.png"));
+                            ImageView imageView = new ImageView(image);
+                            imageView.setFitHeight(CELL_HEIGHT);
+                            imageView.setFitWidth(CELL_WIDTH);
+
+                            Pane container = new Pane(rectangle, imageView);
+
+                            mapGrid.add(container, x, height - y + 1);
+                            GridPane.setHalignment(container, HPos.CENTER);
+                        }catch(FileNotFoundException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    else{
+                        try {
+                            Image image = new Image(new FileInputStream("src/main/resources/images/animalFullHp.png"));
+                            ImageView imageView = new ImageView(image);
+                            imageView.setFitHeight(CELL_HEIGHT);
+                            imageView.setFitWidth(CELL_WIDTH);
+
+                            Pane container = new Pane(rectangle, imageView);
+                            mapGrid.add(container, x, height - y + 1);
+                            GridPane.setHalignment(container, HPos.CENTER);
+                        }catch(FileNotFoundException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else{
+                    Pane container = new Pane(rectangle);
+                    mapGrid.add(container, x, height - y + 1);
+                    GridPane.setHalignment(container, HPos.CENTER);
                 }
             }
         }

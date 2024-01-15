@@ -9,7 +9,7 @@ public class ForestedEquators extends AbstractWorldMap {
     public ForestedEquators(Settings settings){
         super(settings);
 
-        this.randomPositionGenerator = new RandomPositionGenerator(settings.mapWidth(), settings.mapWidth(), settings.grassCount());
+        this.randomPositionGenerator = new RandomPositionGenerator(settings.mapWidth(), settings.mapHeight(), settings.grassCount());
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }

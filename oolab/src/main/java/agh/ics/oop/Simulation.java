@@ -5,10 +5,7 @@ import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collections;
+import java.util.*;
 
 public class Simulation implements Runnable {
     private final List<Animal> animals = new ArrayList<>();
@@ -17,19 +14,20 @@ public class Simulation implements Runnable {
 
     public Simulation(List<Vector2d> startPositions, WorldMap map){
         this.map = map;
-        createAndPlaceAnimals(startPositions);
+        createAndPlaceAnimals();
     }
 
-    private void createAndPlaceAnimals(List<Vector2d> startPositions){
-        for (Vector2d pos : startPositions){
-            Animal newAnimal = new Animal(pos, map);
-            try {
-                map.place(newAnimal);
-                this.animals.add(newAnimal);
-            }
-            catch (PositionAlreadyOccupiedException e){
-                System.out.println("Animal was not placed on the map");
-            }
+    private void createAndPlaceAnimals(){
+        Random random = new Random();
+        for (int i=0; i<map.getStartingNumberOfAnimals(); i++){
+            int x = random.nextInt(map.getWidth());
+            int y = random.nextInt(map.getHeight());
+
+            Vector2d position = new Vector2d(x, y);
+            Animal newAnimal = new Animal(position, map);
+
+            map.place(newAnimal);
+            this.animals.add(newAnimal);
         }
     }
     public void run() {

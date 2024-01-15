@@ -12,9 +12,7 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
 
     public RandomPositionGenerator(int width, int height, int grassCount){
         this.equatorStart = 2 * (height / 5);
-        this.equatorEnd = 3 * (height / 5);
-        //(equatorEnd-equatorStart)*width
-        //(height-(equatorEnd-equatorStart))*width
+        this.equatorEnd = 3 * (height / 5)-1;
         this.vectorsOnEquator = new ArrayList<>();
         this.vectorsBeyondEquator = new ArrayList<>();
         this.size = grassCount;
@@ -32,6 +30,8 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
                 vectorsBeyondEquator.add(new Vector2d(x,y));
             }
         }
+
+        System.out.println(vectorsBeyondEquator.size()+" "+vectorsOnEquator.size());
 
         Collections.shuffle(vectorsOnEquator);
         Collections.shuffle(vectorsBeyondEquator);

@@ -27,6 +27,9 @@ public class InputPresenter {
     private TextField mapHeight;
 
     @FXML
+    private TextField numberOfAnimals;
+
+    @FXML
     private TextField genomeSize;
 
     @FXML
@@ -72,6 +75,7 @@ public class InputPresenter {
     private void initialize(){
         textFields.add(mapWidth);
         textFields.add(mapHeight);
+        textFields.add(numberOfAnimals);
         textFields.add(genomeSize);
         textFields.add(startingEnergy);
         textFields.add(moveCost);
@@ -84,6 +88,7 @@ public class InputPresenter {
         return new Settings(
                 parseInt(mapWidth.getText()),
                 parseInt(mapHeight.getText()),
+                parseInt(numberOfAnimals.getText()),
                 parseInt(genomeSize.getText()),
                 parseInt(startingEnergy.getText()),
                 parseInt(moveCost.getText()),

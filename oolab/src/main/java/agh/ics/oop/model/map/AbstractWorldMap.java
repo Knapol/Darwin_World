@@ -20,6 +20,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected int minEnergyToBreed;
     protected int moveCost;
     protected int grassEnergy;
+    private int startingNumberOfAnimals;
 
     public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost, int grassEnergy){
         this.genomeSize = genomeSize;
@@ -31,6 +32,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     public AbstractWorldMap(Settings settings){
+        this.startingNumberOfAnimals = settings.numberOfAnimals();
         this.genomeSize = settings.genomeSize();
         this.startingEnergy = settings.startingEnergy();
         this.moveCost = settings.moveCost();
@@ -108,10 +110,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected abstract void updateRandomPositionGenerator(Vector2d pos);
 
     @Override
-    public void place(Animal animal) throws PositionAlreadyOccupiedException {
-        if (!canMoveTo(animal.getPosition())) {
-            throw new PositionAlreadyOccupiedException(animal.getPosition());
-        }
+    public void place(Animal animal) {
         animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
         animals.get(animal.getPosition()).add(animal);
 
@@ -185,5 +184,20 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public int getMoveCost() {
         return moveCost;
+    }
+
+    @Override
+    public int getStartingNumberOfAnimals(){
+        return startingNumberOfAnimals;
+    }
+
+    @Override
+    public int getWidth(){
+        return UPPER_RIGHT_BORDER.getX()+1;
+    }
+
+    @Override
+    public int getHeight(){
+        return UPPER_RIGHT_BORDER.getY()+1;
     }
 }
