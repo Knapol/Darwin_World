@@ -3,16 +3,26 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.model.Settings;
 import agh.ics.oop.model.map.AbstractWorldMap;
 import agh.ics.oop.model.map.ForestedEquators;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.w3c.dom.Text;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
@@ -46,6 +56,12 @@ public class InputPresenter {
 
     @FXML
     private TextField grassEnergy;
+
+    @FXML
+    private TextField currentSettingsName;
+
+    @FXML
+    private ComboBox<String> savedSettings;
 
     @FXML
     private void onStart() throws IOException {
@@ -82,6 +98,22 @@ public class InputPresenter {
         textFields.add(minEnergyToBreed);
         textFields.add(grassCount);
         textFields.add(grassEnergy);
+
+        initializeComboBox();
+    }
+
+    private void initializeComboBox(){
+        File directory = new File("src/main/resources/savedSettings");
+
+
+        if (directory.isDirectory()){
+            File[] files = directory.listFiles();
+            if (files != null){
+                Arrays.stream(files)
+                        .filter(File::isFile)
+                        .forEach(file -> savedSettings.getItems().add(file.getName()));
+            }
+        }
     }
 
     private Settings createSettings(){
@@ -96,5 +128,37 @@ public class InputPresenter {
                 parseInt(grassCount.getText()),
                 parseInt(grassEnergy.getText())
         );
+    }
+
+    @FXML
+    private void saveSettingsToFile(){
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedSettings/"+currentSettingsName.getText(), true))){
+            for (TextField textField : textFields){
+                writer.write(textField.getText());
+                writer.write(",");
+            }
+            writer.newLine();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void getSettingsFromFile(){
+        try(Scanner scanner = new Scanner(new File("src/main/resources/savedSettings/" + savedSettings.getValue()))){
+            while(scanner.hasNextLine()){
+                String line = scanner.nextLine();
+                String[] dane = line.split(",");
+
+                int i=0;
+                for(TextField textField : textFields){
+                    textField.setText(dane[i]);
+                    i++;
+                }
+
+            }
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }

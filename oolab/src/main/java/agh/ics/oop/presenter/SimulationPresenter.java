@@ -96,7 +96,12 @@ public class SimulationPresenter implements MapChangeListener {
                 Vector2d pos = new Vector2d(x - 1 + boundary.lowerLeft().getX(), y - 1 + boundary.lowerLeft().getY());
                 Rectangle rectangle;
 
-                if (y-1 < 2*(height/5) || y-1 > 3*(height/5)-1){
+                int equatorLength = (int) Math.round(height * 0.2);
+                int equatorStart = (int) Math.round((height - equatorLength) * 0.5);
+                int equatorEnd = equatorStart + equatorLength - 1;
+
+                if (y-1 < equatorStart || y-1 > equatorEnd){
+//                if (y-1 < 2*(height/5) || y-1 > 3*(height/5)-1){
                     rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
                 }
                 else{
