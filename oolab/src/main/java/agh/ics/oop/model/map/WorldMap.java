@@ -28,9 +28,13 @@ public interface WorldMap extends MoveValidator {
 
     Boundary getCurrentBounds();
 
+    void handleAnimalDeath(Animal animal);
+
     void mapChanged(String message);
 
     void createNewGrass();
+
+    boolean isBetterField(Vector2d pos);
 
     int getStartingEnergy();
 
@@ -43,5 +47,6 @@ public interface WorldMap extends MoveValidator {
     int getStartingNumberOfAnimals();
 
     int getWidth();
+
     int getHeight();
 }

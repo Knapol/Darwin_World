@@ -20,16 +20,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected int minEnergyToBreed;
     protected int moveCost;
     protected int grassEnergy;
-    private int startingNumberOfAnimals;
-
-    public AbstractWorldMap(int width, int height, int genomeSize, int startingEnergy, int minEnergyToBreed, int moveCost, int grassEnergy){
-        this.genomeSize = genomeSize;
-        this.startingEnergy = startingEnergy;
-        this.moveCost = moveCost;
-        this.minEnergyToBreed = minEnergyToBreed;
-        this.UPPER_RIGHT_BORDER = new Vector2d(width-1, height-1);
-        this.grassEnergy = grassEnergy;
-    }
+    private final int startingNumberOfAnimals;
 
     public AbstractWorldMap(Settings settings){
         this.startingNumberOfAnimals = settings.numberOfAnimals();
@@ -53,14 +44,6 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public void move(Animal animal){
-        if (animal.getEnergy() <= 0){
-            animals.get(animal.getPosition()).remove(animal);
-            if (animals.get(animal.getPosition()).isEmpty()){
-                animals.remove(animal.getPosition());
-            }
-            return;
-        }
-
         Vector2d startingPosition = animal.getPosition();
         animal.update(this);
 
@@ -72,6 +55,14 @@ public abstract class AbstractWorldMap implements WorldMap {
             if (animals.get(startingPosition).isEmpty()){
                 animals.remove(startingPosition);
             }
+        }
+    }
+
+    @Override
+    public void handleAnimalDeath(Animal animal){
+        animals.get(animal.getPosition()).remove(animal);
+        if (animals.get(animal.getPosition()).isEmpty()){
+            animals.remove(animal.getPosition());
         }
     }
 
@@ -126,7 +117,6 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public boolean isOccupied(Vector2d position){
-//        System.out.println(animals.get(position));
         return animals.containsKey(position);
     }
 

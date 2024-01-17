@@ -2,7 +2,7 @@ package agh.ics.oop.model;
 
 import java.util.*;
 
-public class RandomPositionGenerator implements Iterable<Vector2d> {
+public class RandomFEPositionGenerator implements Iterable<Vector2d> {
     private final int equatorStart;
     private final int equatorEnd;
 
@@ -10,7 +10,7 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
     private final List<Vector2d> vectorsBeyondEquator;
     private int size;
 
-    public RandomPositionGenerator(int width, int height, int grassCount){
+    public RandomFEPositionGenerator(int width, int height, int grassCount){
         int equatorLength = (int) Math.round(height * 0.2);
         this.equatorStart = (int) Math.round((height - equatorLength) * 0.5);
         this.equatorEnd = this.equatorStart + equatorLength - 1;
@@ -76,7 +76,7 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
                 throw new NoSuchElementException();
             }
 
-            if (random.nextDouble() < 0.8 && !vectorsOnEquator.isEmpty()){
+            if ((random.nextDouble() < 0.8 && !vectorsOnEquator.isEmpty()) || vectorsBeyondEquator.isEmpty()){
                 equatorIndex++;
                 Vector2d pos = vectorsOnEquator.get(vectorsOnEquator.size()-1);
                 vectorsOnEquator.remove(vectorsOnEquator.size()-1);

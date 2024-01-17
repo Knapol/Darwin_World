@@ -3,6 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.model.Settings;
 import agh.ics.oop.model.map.AbstractWorldMap;
 import agh.ics.oop.model.map.ForestedEquators;
+import agh.ics.oop.model.map.LifeGivingCorpses;
+import agh.ics.oop.model.map.MapType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,6 +31,7 @@ import static java.lang.Integer.parseInt;
 public class InputPresenter {
 
     private final List<TextField> textFields = new ArrayList<>();
+    private MapType mapType;
 
     @FXML
     private TextField mapWidth;
@@ -58,6 +61,9 @@ public class InputPresenter {
     private TextField grassEnergy;
 
     @FXML
+    private ComboBox<MapType> mapTypeComboBox;
+
+    @FXML
     private TextField currentSettingsName;
 
     @FXML
@@ -65,26 +71,31 @@ public class InputPresenter {
 
     @FXML
     private void onStart() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
-        BorderPane viewRoot = loader.load();
+        if (validateSettings()) {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
+            BorderPane viewRoot = loader.load();
 
-        Stage simulationStage = new Stage();
-        simulationStage.setTitle("simulation");
+            Stage simulationStage = new Stage();
+            simulationStage.setTitle("Simulation");
 
-        SimulationPresenter presenter = loader.getController();
-        AbstractWorldMap map = new ForestedEquators(createSettings());
-//        AbstractWorldMap map = new ForestedEquators(20,15, 6, 20, 10, 0, 50, 20);
-        map.addObserver(presenter);
-        presenter.setWorldMap(map);
+            SimulationPresenter presenter = loader.getController();
+            AbstractWorldMap map = switch(mapTypeComboBox.getValue()) {
+                case FORESTED_EQUATORS -> new ForestedEquators(createSettings());
+                case LIFE_GIVING_CORPSES -> new LifeGivingCorpses(createSettings());
+            };
 
-        simulationStage.setScene(new Scene(viewRoot));
-        simulationStage.minWidthProperty().bind(viewRoot.minWidthProperty());
-        simulationStage.minHeightProperty().bind(viewRoot.minHeightProperty());
+            map.addObserver(presenter);
+            presenter.setWorldMap(map);
 
-        simulationStage.show();
+            simulationStage.setScene(new Scene(viewRoot));
+            simulationStage.minWidthProperty().bind(viewRoot.minWidthProperty());
+            simulationStage.minHeightProperty().bind(viewRoot.minHeightProperty());
 
-        presenter.createSimulation();
+            simulationStage.show();
+
+            presenter.createSimulation(simulationStage);
+        }
     }
 
     @FXML
@@ -99,12 +110,17 @@ public class InputPresenter {
         textFields.add(grassCount);
         textFields.add(grassEnergy);
 
-        initializeComboBox();
+        initializeSettingsComboBox();
+        initializeMapTypeComboBox();
     }
 
-    private void initializeComboBox(){
-        File directory = new File("src/main/resources/savedSettings");
+    private void initializeMapTypeComboBox(){
+        ObservableList<MapType> mapTypes = FXCollections.observableArrayList(MapType.values());
+        mapTypeComboBox.setItems(mapTypes);
+    }
 
+    private void initializeSettingsComboBox(){
+        File directory = new File("src/main/resources/savedSettings");
 
         if (directory.isDirectory()){
             File[] files = directory.listFiles();
@@ -126,7 +142,8 @@ public class InputPresenter {
                 parseInt(moveCost.getText()),
                 parseInt(minEnergyToBreed.getText()),
                 parseInt(grassCount.getText()),
-                parseInt(grassEnergy.getText())
+                parseInt(grassEnergy.getText()),
+                mapTypeComboBox.getValue()
         );
     }
 
@@ -138,6 +155,7 @@ public class InputPresenter {
                 writer.write(",");
             }
             writer.newLine();
+            savedSettings.getItems().add(currentSettingsName.getText());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -160,5 +178,19 @@ public class InputPresenter {
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    private boolean validateSettings(){
+        if (mapTypeComboBox.getValue() == null){
+            return false;
+        }
+
+        for(TextField textField : textFields){
+            if (textField.getText().isEmpty()){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

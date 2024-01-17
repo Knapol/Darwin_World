@@ -18,13 +18,6 @@ public class SimulationApp extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getClassLoader().getResource("input.fxml"));
         BorderPane viewRoot = loader.load();
-//        InputPresenter presenter = loader.getController();
-
-//        ConsoleMapDisplay consoleMapDisplay = new ConsoleMapDisplay();
-//        AbstractWorldMap map = new ForestedEquators(20,15, 6, 20, 10, 5, 50, 20);
-//        map.addObserver(consoleMapDisplay);
-//        map.addObserver(presenter);
-//        presenter.setWorldMap(map);
 
         configureStage(primaryStage, viewRoot);
 

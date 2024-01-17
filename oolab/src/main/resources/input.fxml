@@ -63,6 +63,11 @@
             </HBox>
 
             <HBox>
+               <Label text="Map Type"/>
+                <ComboBox fx:id="mapTypeComboBox"/>
+            </HBox>
+
+            <HBox>
                 <Button text="Start" onAction="#onStart"/>
                 <Label text="Settings name"/>
                 <TextField fx:id="currentSettingsName"/>

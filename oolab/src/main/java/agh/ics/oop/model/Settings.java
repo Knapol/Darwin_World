@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import agh.ics.oop.model.map.MapType;
+
 public record Settings(
         int mapWidth,
         int mapHeight,
@@ -9,5 +11,6 @@ public record Settings(
         int moveCost,
         int minEnergyToBreed,
         int grassCount,
-        int grassEnergy
+        int grassEnergy,
+        MapType mapType
 ) {}

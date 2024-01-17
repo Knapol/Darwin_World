@@ -1,6 +1,7 @@
 package agh.ics.oop;
 import agh.ics.oop.model.Animal;
 import agh.ics.oop.model.MoveDirection;
+import agh.ics.oop.model.SimulationState;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
@@ -10,9 +11,9 @@ import java.util.*;
 public class Simulation implements Runnable {
     private final List<Animal> animals = new ArrayList<>();
     private final WorldMap map;
-    private boolean simulationIsRunning = true;
+    private SimulationState simulationState = SimulationState.RUNNING;
 
-    public Simulation(List<Vector2d> startPositions, WorldMap map){
+    public Simulation(WorldMap map){
         this.map = map;
         createAndPlaceAnimals();
     }
@@ -33,10 +34,10 @@ public class Simulation implements Runnable {
     public void run() {
         while (true){
             try {
-                if (simulationIsRunning) {
-                    newSimulationDay();
-                } else {
-                    Thread.sleep(100);
+                switch(simulationState){
+                    case RUNNING -> newSimulationDay();
+                    case PAUSED -> Thread.sleep(100);
+                    case ENDED -> {return;}
                 }
             }
             catch(InterruptedException e){
@@ -51,12 +52,15 @@ public class Simulation implements Runnable {
             Animal animal = it.next();
             if (animal.getEnergy() <= 0){
                 it.remove();
+                map.handleAnimalDeath(animal);
+                continue;
             }
             map.move(animal);
         }
 
         if (animals.isEmpty()){
             System.out.println("All dead sadge");
+            simulationState = SimulationState.ENDED;
             return;
         }
 
@@ -69,14 +73,18 @@ public class Simulation implements Runnable {
     }
 
     public void pause(){
-        simulationIsRunning = false;
+        simulationState = SimulationState.PAUSED;
     }
 
     public void start(){
-        simulationIsRunning = true;
+        simulationState = SimulationState.RUNNING;
     }
 
-    public boolean getSimulationState(){
-        return simulationIsRunning;
+    public void end(){
+        simulationState = SimulationState.ENDED;
+    }
+
+    public SimulationState getSimulationState(){
+        return simulationState;
     }
 }

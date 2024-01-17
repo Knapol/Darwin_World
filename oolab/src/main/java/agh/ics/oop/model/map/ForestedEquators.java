@@ -4,12 +4,12 @@ import agh.ics.oop.model.*;
 
 public class ForestedEquators extends AbstractWorldMap {
 
-    private final RandomPositionGenerator randomPositionGenerator;
+    private final RandomFEPositionGenerator randomPositionGenerator;
 
     public ForestedEquators(Settings settings){
         super(settings);
 
-        this.randomPositionGenerator = new RandomPositionGenerator(settings.mapWidth(), settings.mapHeight(), settings.grassCount());
+        this.randomPositionGenerator = new RandomFEPositionGenerator(settings.mapWidth(), settings.mapHeight(), settings.grassCount());
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
@@ -41,5 +41,14 @@ public class ForestedEquators extends AbstractWorldMap {
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
+    }
+
+    @Override
+    public boolean isBetterField(Vector2d pos){
+        int equatorLength = (int) Math.round(this.getHeight() * 0.2);
+        int equatorStart = (int) Math.round((this.getHeight() - equatorLength) * 0.5);
+        int equatorEnd = equatorStart + equatorLength - 1;
+
+        return pos.getY() >= equatorStart && pos.getY() <= equatorEnd;
     }
 }

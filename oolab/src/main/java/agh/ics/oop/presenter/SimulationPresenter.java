@@ -96,17 +96,23 @@ public class SimulationPresenter implements MapChangeListener {
                 Vector2d pos = new Vector2d(x - 1 + boundary.lowerLeft().getX(), y - 1 + boundary.lowerLeft().getY());
                 Rectangle rectangle;
 
-                int equatorLength = (int) Math.round(height * 0.2);
-                int equatorStart = (int) Math.round((height - equatorLength) * 0.5);
-                int equatorEnd = equatorStart + equatorLength - 1;
-
-                if (y-1 < equatorStart || y-1 > equatorEnd){
-//                if (y-1 < 2*(height/5) || y-1 > 3*(height/5)-1){
-                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
-                }
-                else{
+                if (worldMap.isBetterField(pos)){
                     rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(222,184,135));
                 }
+                else{
+                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
+                }
+
+//                int equatorLength = (int) Math.round(height * 0.2);
+//                int equatorStart = (int) Math.round((height - equatorLength) * 0.5);
+//                int equatorEnd = equatorStart + equatorLength - 1;
+//
+//                if (y-1 < equatorStart || y-1 > equatorEnd){
+//                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
+//                }
+//                else{
+//                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(222,184,135));
+//                }
 
                 rectangle.setStroke(Color.BLACK);
                 rectangle.setStrokeWidth(1);
@@ -157,22 +163,16 @@ public class SimulationPresenter implements MapChangeListener {
         mapGrid.getRowConstraints().clear();
     }
 
-    public void createSimulation(){
-        List<Vector2d> positions = List.of(
-                new Vector2d(1, 1),
-                new Vector2d(1, 1),
-                new Vector2d(1,1),
-                new Vector2d(1, 1)
-        );
-
-        simulation = new Simulation(positions, worldMap);
+    public void createSimulation(Stage simulationStage){
+        simulation = new Simulation(worldMap);
         Thread thread = new Thread(simulation);
         thread.start();
+        simulationStage.setOnCloseRequest(event -> simulation.end());
     }
 
     @FXML
     private void onPause(){
-        if (simulation.getSimulationState()) {
+        if (simulation.getSimulationState() == SimulationState.RUNNING) {
             simulation.pause();
         }
         else{
