@@ -1,11 +1,10 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
-// ziemia to po prostu abstract worldMap (BO TAK PROSCIEJ OKOKOK)
+
 public abstract class AbstractWorldMap implements WorldMap {
     private static final Vector2d LOWER_LEFT_BORDER = new Vector2d(0,0);
     private final Vector2d UPPER_RIGHT_BORDER;
@@ -16,20 +15,43 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     protected int genomeSize;
+    private final int minMutations;
+    private final int maxMutations;
     protected int startingEnergy;
-    protected int minEnergyToBreed;
+    private final int minEnergyToBreed;
+    private final int energyUseForBreeding;
     protected int moveCost;
     protected int grassEnergy;
+    protected int grassPerDay;
     private final int startingNumberOfAnimals;
+    private final AnimalBehavior animalBehavior;
+    private int animalCount;
+
+    private AnimalComparator animalComparator;
 
     public AbstractWorldMap(Settings settings){
+        this.UPPER_RIGHT_BORDER = new Vector2d(settings.mapWidth()-1, settings.mapHeight()-1);
+
         this.startingNumberOfAnimals = settings.numberOfAnimals();
+
         this.genomeSize = settings.genomeSize();
+
+        this.minMutations = settings.minMutations();
+        this.maxMutations = settings.maxMutations();
+
+        this.animalBehavior = settings.animalBehavior();
+
         this.startingEnergy = settings.startingEnergy();
         this.moveCost = settings.moveCost();
         this.minEnergyToBreed = settings.minEnergyToBreed();
-        this.UPPER_RIGHT_BORDER = new Vector2d(settings.mapWidth()-1, settings.mapHeight()-1);
+        this.energyUseForBreeding = settings.energyUseForBreeding();
+
         this.grassEnergy = settings.grassEnergy();
+        this.grassPerDay = settings.grassPerDay();
+
+        this.animalCount = 0;
+
+        this.animalComparator = new AnimalComparator();
     }
 
     @Override
@@ -47,14 +69,12 @@ public abstract class AbstractWorldMap implements WorldMap {
         Vector2d startingPosition = animal.getPosition();
         animal.update(this);
 
-        if (canMoveTo(animal.getPosition())){
-            animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
-            animals.get(animal.getPosition()).add(animal);
-            animals.get(startingPosition).remove(animal);
+        animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
+        animals.get(animal.getPosition()).add(animal);
+        animals.get(startingPosition).remove(animal);
 
-            if (animals.get(startingPosition).isEmpty()){
-                animals.remove(startingPosition);
-            }
+        if (animals.get(startingPosition).isEmpty()){
+            animals.remove(startingPosition);
         }
     }
 
@@ -73,7 +93,8 @@ public abstract class AbstractWorldMap implements WorldMap {
                 continue;
             }
 
-            //need to implement function that will sort the animals on position
+            animalsOnPos.sort(animalComparator.reversed());
+
             Animal animal1 = animalsOnPos.get(0);
             Animal animal2 = animalsOnPos.get(1);
 
@@ -81,6 +102,7 @@ public abstract class AbstractWorldMap implements WorldMap {
             if (child != null) {
                 animals.get(child.getPosition()).add(child);
                 animalsList.add(child);
+                animalCount++;
             }
         }
     }
@@ -91,7 +113,11 @@ public abstract class AbstractWorldMap implements WorldMap {
         while (it.hasNext()){
             Vector2d pos = it.next();
             if (animals.get(pos) != null){
+                if (animals.get(pos).size() >= 2) {
+                    animals.get(pos).sort(animalComparator.reversed());
+                }
                 animals.get(pos).get(0).eat(this.grassEnergy);
+
                 grasses.remove(pos);
                 updateRandomPositionGenerator(pos);
             }
@@ -104,6 +130,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     public void place(Animal animal) {
         animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
         animals.get(animal.getPosition()).add(animal);
+        animalCount++;
 
         mapChanged("Animal was added into position " + animal.getPosition());
     }
@@ -189,5 +216,35 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public int getHeight(){
         return UPPER_RIGHT_BORDER.getY()+1;
+    }
+
+    @Override
+    public int getMinMutations(){
+        return minMutations;
+    }
+
+    @Override
+    public int getMaxMutations(){
+        return maxMutations;
+    }
+
+    @Override
+    public AnimalBehavior getAnimalBehavior(){
+        return animalBehavior;
+    }
+
+    @Override
+    public int getEnergyUseForBreeding(){
+        return energyUseForBreeding;
+    }
+
+    @Override
+    public int getAnimalCount(){
+        return animalCount;
+    }
+
+    @Override
+    public int getNextAnimalID(){
+        return animalCount+1;
     }
 }

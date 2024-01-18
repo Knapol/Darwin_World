@@ -37,7 +37,7 @@ public class ForestedEquators extends AbstractWorldMap {
     }
 
     public void createNewGrass(){
-        randomPositionGenerator.prepareRandomPositionGenerator(1);
+        randomPositionGenerator.prepareRandomPositionGenerator(grassPerDay);
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }

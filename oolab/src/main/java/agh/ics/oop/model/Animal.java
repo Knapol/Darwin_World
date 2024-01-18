@@ -3,34 +3,33 @@ package agh.ics.oop.model;
 import agh.ics.oop.model.map.MoveValidator;
 import agh.ics.oop.model.map.WorldMap;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class Animal implements WorldElement{
+    private final long ID;
     private MapDirection direction;
     private Vector2d position;
-    private final int[] genome;
-    private int activeGenomeID;
-    private int energy = 10;
+    private final Genome genome;
+    private int energy;
     private int daysAlive;
     private Animal father;
     private Animal mother;
     private int numberOfChildren;
     private int numberOfDescendants;
-    private WorldMap map;
+    private final WorldMap map;
 
     public Animal(Vector2d position, WorldMap map){
         this.direction = MapDirection.randomDirection();
         this.position = position;
         this.map = map;
-        this.genome = new int[map.getGenomeSize()];
+        this.genome = new Genome(map.getGenomeSize());
         this.energy = map.getStartingEnergy();
-        createGenome(map.getGenomeSize());
+        this.daysAlive = 0;
+        this.ID = map.getNextAnimalID();
     }
 
-    public Animal(Vector2d position, WorldMap map, int[] genome, int energy, Animal father, Animal mother){
+    public Animal(Vector2d position, WorldMap map, Genome genome, int energy, Animal father, Animal mother){
         this.direction = MapDirection.randomDirection();
         this.position = position;
         this.map = map;
@@ -38,6 +37,8 @@ public class Animal implements WorldElement{
         this.energy = energy;
         this.father = father;
         this.mother = mother;
+        this.daysAlive = 0;
+        this.ID = map.getNextAnimalID();
     }
 
     @Override
@@ -64,11 +65,7 @@ public class Animal implements WorldElement{
     }
 
     private void rotate(){
-        direction = direction.rotate(genome[activeGenomeID]);
-        activeGenomeID++;
-        if (activeGenomeID >= genome.length){
-            activeGenomeID = 0;
-        }
+        direction = direction.rotate(genome.getNextGene(map.getAnimalBehavior()));
     }
 
     private void move(MoveValidator moveValidator){
@@ -95,6 +92,7 @@ public class Animal implements WorldElement{
             return;
         }
 
+        daysAlive+=1;
         position = testPosition;
     }
 
@@ -126,56 +124,23 @@ public class Animal implements WorldElement{
             return null;
         }
 
-        int[] childGenome = createNewGenome(this.genome, this.energy, other.genome, other.energy);
+        Genome childGenome = (this.energy >= other.energy) ?
+                this.genome.createNewGenome(other.genome, this.energy, other.energy) :
+                other.genome.createNewGenome(this.genome, other.energy, this.energy);
 
-        this.energy -= map.getMinEnergyToBreed();
-        other.energy -= map.getMinEnergyToBreed();
+        childGenome.mutate(this.map.getMinMutations(), this.map.getMaxMutations());
+
+        this.energy -= map.getEnergyUseForBreeding();
+        other.energy -= map.getEnergyUseForBreeding();
 
         updateDescendants(other);
 
         this.numberOfChildren++;
-        this.numberOfChildren++;
+        other.numberOfChildren++;
 
         int childEnergy = 2 * map.getMinEnergyToBreed();
 
         return new Animal(this.position, this.map, childGenome, childEnergy, this, other);
-    }
-
-
-    // put the genome methods into new class, maybe class Genome (?)
-    private static int[] createNewGenome(int[] genome1, int energy1, int[] genome2, int energy2){
-        int genomeSize = genome1.length;
-
-        if (Math.random() > 0.5){
-            int[] tempGenome = genome1;
-            genome1 = genome2;
-            genome2 = tempGenome;
-
-            int tempEnergy = energy1;
-            energy1 = energy2;
-            energy2 = tempEnergy;
-        }
-
-        int ratio = Math.min(energy1/energy2, energy2/energy1);
-        int midPoint = (energy1 >= energy2) ? ratio*genomeSize : genomeSize - genomeSize*ratio;
-
-        int[] newGenome = new int[genomeSize];
-        for (int i=0; i<midPoint; i++){
-            newGenome[i] = genome1[i];
-        }
-
-        for (int i=midPoint; i<genomeSize; i++){
-            newGenome[i] = genome2[i];
-        }
-
-        return newGenome;
-    }
-
-    private void createGenome(int genomeSize){
-        Random randomGenerator = new Random();
-        for (int i=0; i<genomeSize; i++){
-            genome[i] = randomGenerator.nextInt(8); //maybe file for all static
-        }
     }
 
     public void eat(int grassEnergy){
@@ -204,5 +169,9 @@ public class Animal implements WorldElement{
 
     public int getNumberOfDescendants() {
         return numberOfDescendants;
+    }
+
+    public long getID(){
+        return ID;
     }
 }

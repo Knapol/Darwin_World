@@ -31,10 +31,24 @@
                 <TextField fx:id="numberOfAnimals"/>
             </HBox>
 
-
             <HBox>
                 <Label text="Genome size"/>
                 <TextField fx:id="genomeSize"/>
+            </HBox>
+
+            <HBox>
+                <Label text="Min mutations"/>
+                <TextField fx:id="minMutations"/>
+            </HBox>
+
+            <HBox>
+                <Label text="Max mutations"/>
+                <TextField fx:id="maxMutations"/>
+            </HBox>
+
+            <HBox>
+                <Label text="Animal behavior"/>
+                <ComboBox fx:id="animalBehaviorComboBox"/>
             </HBox>
 
             <HBox>
@@ -53,6 +67,11 @@
             </HBox>
 
             <HBox>
+                <Label text="Energy used for breeding"/>
+                <TextField fx:id="energyUseForBreeding"/>
+            </HBox>
+
+            <HBox>
                 <Label text="Grass count"/>
                 <TextField fx:id="grassCount"/>
             </HBox>
@@ -63,8 +82,18 @@
             </HBox>
 
             <HBox>
-               <Label text="Map Type"/>
-                <ComboBox fx:id="mapTypeComboBox"/>
+                <Label text="Grass per day"/>
+                <TextField fx:id="grassPerDay"/>
+            </HBox>
+
+            <HBox>
+                <Label text="Map type"/>
+                <ComboBox fx:id="mapTypeComboBox" onAction="#onMapTypeChange"/>
+            </HBox>
+
+            <HBox>
+                <Label text="Better field duration"/>
+                <TextField fx:id="betterFieldDuration"/>
             </HBox>
 
             <HBox>

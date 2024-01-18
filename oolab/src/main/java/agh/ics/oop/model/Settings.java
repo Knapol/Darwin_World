@@ -7,10 +7,16 @@ public record Settings(
         int mapHeight,
         int numberOfAnimals,
         int genomeSize,
+        int minMutations,
+        int maxMutations,
+        AnimalBehavior animalBehavior,
         int startingEnergy,
         int moveCost,
         int minEnergyToBreed,
+        int energyUseForBreeding,
         int grassCount,
         int grassEnergy,
-        MapType mapType
+        int grassPerDay,
+        MapType mapType,
+        int betterFieldDuration
 ) {}

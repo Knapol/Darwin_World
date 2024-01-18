@@ -18,8 +18,6 @@ public class RandomFEPositionGenerator implements Iterable<Vector2d> {
         this.vectorsBeyondEquator = new ArrayList<>();
         this.size = grassCount;
 
-        System.out.println(equatorLength + " " + equatorStart + " " + equatorEnd);
-
         for (int x=0; x<width; x++){
             for (int y=0; y<equatorStart; y++){
                 vectorsBeyondEquator.add(new Vector2d(x,y));
@@ -67,7 +65,7 @@ public class RandomFEPositionGenerator implements Iterable<Vector2d> {
 
         @Override
         public boolean hasNext(){
-            return equatorIndex+beyondEquatorIndex < size || (vectorsOnEquator.isEmpty() && vectorsBeyondEquator.isEmpty());
+            return equatorIndex+beyondEquatorIndex < size && !(vectorsOnEquator.isEmpty() && vectorsBeyondEquator.isEmpty());
         }
 
         @Override

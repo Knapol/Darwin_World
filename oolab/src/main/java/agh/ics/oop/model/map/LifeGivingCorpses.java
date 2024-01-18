@@ -8,17 +8,17 @@ import java.util.Map;
 
 public class LifeGivingCorpses extends AbstractWorldMap {
     private final RandomLGCPositionGenerator randomPositionGenerator;
-    private final int betterFieldDuration = 10;
+    private final int betterFieldDuration;
     private HashMap<Vector2d, Integer> betterFields;
 
     public LifeGivingCorpses(Settings settings){
         super(settings);
+        this.betterFieldDuration = settings.betterFieldDuration();
         this.randomPositionGenerator = new RandomLGCPositionGenerator(settings.mapWidth(), settings.mapHeight(), settings.grassCount());
 
         this.betterFields = new HashMap<>();
 
         for(Vector2d grassPosition : randomPositionGenerator) {
-            System.out.println("xd");
             grasses.put(grassPosition, new Grass(grassPosition));
         }
     }
@@ -113,7 +113,7 @@ public class LifeGivingCorpses extends AbstractWorldMap {
             }
         }
 
-        randomPositionGenerator.prepareRandomPositionGenerator(1);
+        randomPositionGenerator.prepareRandomPositionGenerator(grassPerDay);
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }

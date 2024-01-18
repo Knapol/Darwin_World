@@ -1,5 +1,6 @@
 package agh.ics.oop.presenter;
 
+import agh.ics.oop.model.AnimalBehavior;
 import agh.ics.oop.model.Settings;
 import agh.ics.oop.model.map.AbstractWorldMap;
 import agh.ics.oop.model.map.ForestedEquators;
@@ -26,12 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import static java.lang.Integer.max;
 import static java.lang.Integer.parseInt;
 
 public class InputPresenter {
 
     private final List<TextField> textFields = new ArrayList<>();
-    private MapType mapType;
 
     @FXML
     private TextField mapWidth;
@@ -46,6 +47,15 @@ public class InputPresenter {
     private TextField genomeSize;
 
     @FXML
+    private TextField minMutations;
+
+    @FXML
+    private TextField maxMutations;
+
+    @FXML
+    private ComboBox<AnimalBehavior> animalBehaviorComboBox;
+
+    @FXML
     private TextField startingEnergy;
 
     @FXML
@@ -55,13 +65,22 @@ public class InputPresenter {
     private TextField minEnergyToBreed;
 
     @FXML
+    private TextField energyUseForBreeding;
+
+    @FXML
     private TextField grassCount;
 
     @FXML
     private TextField grassEnergy;
 
     @FXML
+    private TextField grassPerDay;
+
+    @FXML
     private ComboBox<MapType> mapTypeComboBox;
+
+    @FXML
+    private TextField betterFieldDuration;
 
     @FXML
     private TextField currentSettingsName;
@@ -104,19 +123,31 @@ public class InputPresenter {
         textFields.add(mapHeight);
         textFields.add(numberOfAnimals);
         textFields.add(genomeSize);
+        textFields.add(minMutations);
+        textFields.add(maxMutations);
         textFields.add(startingEnergy);
         textFields.add(moveCost);
         textFields.add(minEnergyToBreed);
+        textFields.add(energyUseForBreeding);
         textFields.add(grassCount);
         textFields.add(grassEnergy);
+        textFields.add(grassPerDay);
+        textFields.add(betterFieldDuration);
 
         initializeSettingsComboBox();
+        initializeAnimalBehaviorComboBox();
         initializeMapTypeComboBox();
+        initializeTextFields();
     }
 
     private void initializeMapTypeComboBox(){
         ObservableList<MapType> mapTypes = FXCollections.observableArrayList(MapType.values());
         mapTypeComboBox.setItems(mapTypes);
+    }
+
+    private void initializeAnimalBehaviorComboBox(){
+        ObservableList<AnimalBehavior> animalBehaviors = FXCollections.observableArrayList(AnimalBehavior.values());
+        animalBehaviorComboBox.setItems(animalBehaviors);
     }
 
     private void initializeSettingsComboBox(){
@@ -132,18 +163,42 @@ public class InputPresenter {
         }
     }
 
+    private void initializeTextFields(){
+        for (TextField textField : textFields){
+            textField.setText("0");
+        }
+        betterFieldDuration.setDisable(true);
+    }
+
+    @FXML
+    private void onMapTypeChange(){
+        if (mapTypeComboBox.getValue() == MapType.FORESTED_EQUATORS) {
+            betterFieldDuration.setDisable(true);
+            betterFieldDuration.setText("0");
+        }
+        else{
+            betterFieldDuration.setDisable(false);
+        }
+    }
+
     private Settings createSettings(){
         return new Settings(
                 parseInt(mapWidth.getText()),
                 parseInt(mapHeight.getText()),
                 parseInt(numberOfAnimals.getText()),
                 parseInt(genomeSize.getText()),
+                parseInt(minMutations.getText()),
+                parseInt(maxMutations.getText()),
+                animalBehaviorComboBox.getValue(),
                 parseInt(startingEnergy.getText()),
                 parseInt(moveCost.getText()),
                 parseInt(minEnergyToBreed.getText()),
+                parseInt(energyUseForBreeding.getText()),
                 parseInt(grassCount.getText()),
                 parseInt(grassEnergy.getText()),
-                mapTypeComboBox.getValue()
+                parseInt(grassPerDay.getText()),
+                mapTypeComboBox.getValue(),
+                parseInt(betterFieldDuration.getText())
         );
     }
 
@@ -155,6 +210,10 @@ public class InputPresenter {
                 writer.write(",");
             }
             writer.newLine();
+            writer.write(mapTypeComboBox.getValue().name());
+            writer.newLine();
+            writer.write(animalBehaviorComboBox.getValue().name());
+            writer.newLine();
             savedSettings.getItems().add(currentSettingsName.getText());
         }catch(IOException e){
             e.printStackTrace();
@@ -164,17 +223,27 @@ public class InputPresenter {
     @FXML
     private void getSettingsFromFile(){
         try(Scanner scanner = new Scanner(new File("src/main/resources/savedSettings/" + savedSettings.getValue()))){
+            int lineCounter = 0;
             while(scanner.hasNextLine()){
                 String line = scanner.nextLine();
-                String[] dane = line.split(",");
 
-                int i=0;
-                for(TextField textField : textFields){
-                    textField.setText(dane[i]);
-                    i++;
+                switch(lineCounter) {
+                    case 0 -> {
+                        String[] dane = line.split(",");
+
+                        int i = 0;
+                        for (TextField textField : textFields) {
+                            textField.setText(dane[i]);
+                            i++;
+                        }
+                    }
+                    case 1 -> mapTypeComboBox.setValue(MapType.valueOf(line));
+                    case 2 -> animalBehaviorComboBox.setValue(AnimalBehavior.valueOf(line));
                 }
-
+                lineCounter++;
             }
+            betterFieldDuration.setDisable(mapTypeComboBox.getValue() == MapType.FORESTED_EQUATORS);
+
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -185,6 +254,10 @@ public class InputPresenter {
             return false;
         }
 
+        if (animalBehaviorComboBox.getValue() == null){
+            return false;
+        }
+        //need to add some better validations if there will be enough time
         for(TextField textField : textFields){
             if (textField.getText().isEmpty()){
                 return false;

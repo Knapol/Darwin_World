@@ -49,4 +49,13 @@ public interface WorldMap extends MoveValidator {
     int getWidth();
 
     int getHeight();
+
+    int getMinMutations();
+    int getMaxMutations();
+
+    AnimalBehavior getAnimalBehavior();
+    int getEnergyUseForBreeding();
+
+    int getAnimalCount();
+    int getNextAnimalID();
 }

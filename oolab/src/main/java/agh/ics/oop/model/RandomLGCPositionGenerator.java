@@ -56,7 +56,7 @@ public class RandomLGCPositionGenerator implements Iterable<Vector2d> {
 
         @Override
         public boolean hasNext(){
-            return normalIndex+nearCorpsesIndex < size || (vectorsNearCorpses.isEmpty() && vectorsNormal.isEmpty());
+            return normalIndex+nearCorpsesIndex < size && !(vectorsNearCorpses.isEmpty() && vectorsNormal.isEmpty());
         }
 
         @Override

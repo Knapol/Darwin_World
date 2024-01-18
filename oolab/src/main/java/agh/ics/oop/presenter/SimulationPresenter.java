@@ -31,12 +31,18 @@ public class SimulationPresenter implements MapChangeListener {
 
     @FXML
     private GridPane mapGrid;
+    private int CELL_WIDTH;
+    private int CELL_HEIGHT;
 
-    private final static int CELL_WIDTH = 50;
-    private final static int CELL_HEIGHT = 50;
+
 
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
+
+        int side = 500/(Math.max(worldMap.getHeight(), worldMap.getWidth())+1);
+
+        CELL_HEIGHT = side;
+        CELL_WIDTH = side;
     }
 
     @Override
@@ -103,17 +109,6 @@ public class SimulationPresenter implements MapChangeListener {
                     rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
                 }
 
-//                int equatorLength = (int) Math.round(height * 0.2);
-//                int equatorStart = (int) Math.round((height - equatorLength) * 0.5);
-//                int equatorEnd = equatorStart + equatorLength - 1;
-//
-//                if (y-1 < equatorStart || y-1 > equatorEnd){
-//                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
-//                }
-//                else{
-//                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(222,184,135));
-//                }
-
                 rectangle.setStroke(Color.BLACK);
                 rectangle.setStrokeWidth(1);
 
@@ -175,6 +170,7 @@ public class SimulationPresenter implements MapChangeListener {
         if (simulation.getSimulationState() == SimulationState.RUNNING) {
             simulation.pause();
         }
+
         else{
             simulation.start();
         }
