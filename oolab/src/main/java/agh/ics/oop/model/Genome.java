@@ -3,11 +3,12 @@ package agh.ics.oop.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Genome {
     private final List<Integer> genome;
     private final int genomeSize;
-    private int activeGenome;
+    private int activeGene;
     private int genomeDirection;
 
     private final Random random;
@@ -19,7 +20,7 @@ public class Genome {
         this.genomeSize = size;
         createStarterGenome();
 
-        this.activeGenome = random.nextInt(this.genomeSize);
+        this.activeGene = random.nextInt(this.genomeSize);
         this.genomeDirection = 1;
     }
 
@@ -28,27 +29,34 @@ public class Genome {
         this.random = new Random();
         this.genome = genome;
         this.genomeSize = genome.size();
-        this.activeGenome = random.nextInt(this.genomeSize);
+        this.activeGene = random.nextInt(this.genomeSize);
         this.genomeDirection = 1;
     }
 
+    @Override
+    public String toString(){
+        return genome.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(""));
+    }
+
     public int getNextGene(AnimalBehavior animalBehavior){
-        int gene = genome.get(activeGenome);
-        activeGenome += genomeDirection;
+        int gene = genome.get(activeGene);
+        activeGene += genomeDirection;
 
         switch (animalBehavior){
             case NORMAL -> {
-                if (activeGenome >= genomeSize){
-                    activeGenome = 0;
+                if (activeGene >= genomeSize){
+                    activeGene = 0;
                 }
             }
             case THERE_AND_BACK -> {
-                if (activeGenome >= genomeSize){
-                    activeGenome = genomeSize-2;
+                if (activeGene >= genomeSize){
+                    activeGene = genomeSize-2;
                     genomeDirection = -genomeDirection;
                 }
-                else if (activeGenome < 0){
-                    activeGenome = 1;
+                else if (activeGene < 0){
+                    activeGene = 1;
                     genomeDirection = -genomeDirection;
                 }
             }
@@ -99,7 +107,6 @@ public class Genome {
         }
     }
 
-    //dopytac czy git, czy trzeba inaczej
     public void mutate(int minMutations, int maxMutations){
         int numberOfMutations = random.nextInt(maxMutations - minMutations + 1) + minMutations;
         for (int i=0; i<numberOfMutations; i++){

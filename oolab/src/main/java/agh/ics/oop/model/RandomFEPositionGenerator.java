@@ -32,8 +32,6 @@ public class RandomFEPositionGenerator implements Iterable<Vector2d> {
             }
         }
 
-        System.out.println(vectorsBeyondEquator.size()+" "+vectorsOnEquator.size());
-
         Collections.shuffle(vectorsOnEquator);
         Collections.shuffle(vectorsBeyondEquator);
     }

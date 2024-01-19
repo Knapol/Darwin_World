@@ -1,15 +1,12 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
-import agh.ics.oop.model.map.MoveValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-public interface WorldMap extends MoveValidator {
+public interface WorldMap {
     void place(Animal animal);
 
     void move(Animal animal);
@@ -51,11 +48,18 @@ public interface WorldMap extends MoveValidator {
     int getHeight();
 
     int getMinMutations();
+
     int getMaxMutations();
 
     AnimalBehavior getAnimalBehavior();
+
     int getEnergyUseForBreeding();
 
     int getAnimalCount();
+
     int getNextAnimalID();
+
+    int getGrassCount();
+
+    int getEmptyFieldsCount();
 }

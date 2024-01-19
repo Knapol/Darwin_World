@@ -1,7 +1,21 @@
 HBox {
     -fx-alignment: CENTER;
+    -fx-padding: 2;
 }
 
 VBox {
     -fx-alignment: CENTER;
+    -fx-padding: 2;
+}
+
+.statsName{
+    -fx-padding: 2;
+    -fx-alignment: baseline-left;
+    -fx-pref-width: 200;
+}
+
+.statsData{
+    -fx-alignment: baseline-right;
+    -fx-padding: 2;
+    -fx-pref-width: 80;
 }

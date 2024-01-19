@@ -1,0 +1,14 @@
+HBox {
+    -fx-alignment: CENTER;
+    -fx-padding: 2;
+}
+
+VBox {
+    -fx-alignment: CENTER;
+    -fx-padding: 2;
+}
+
+Label {
+    -fx-padding: 2;
+    -fx-pref-width: 100;
+}

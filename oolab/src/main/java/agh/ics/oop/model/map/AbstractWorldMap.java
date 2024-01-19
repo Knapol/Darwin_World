@@ -67,7 +67,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public void move(Animal animal){
         Vector2d startingPosition = animal.getPosition();
-        animal.update(this);
+        animal.update();
 
         animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
         animals.get(animal.getPosition()).add(animal);
@@ -136,13 +136,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
-    public boolean canMoveTo(Vector2d position){
-        // should later change it to sth more cool
-        return true;
-//        return !animals.containsKey(position);
-    }
-
-    @Override
     public boolean isOccupied(Vector2d position){
         return animals.containsKey(position);
     }
@@ -150,7 +143,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public WorldElement objectAt(Vector2d position){
         if (animals.get(position) != null) {
-                return animals.get(position).get(0);
+            return animals.get(position).get(0);
         }
         return null;
     }
@@ -238,6 +231,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         return energyUseForBreeding;
     }
 
+    //statistics
     @Override
     public int getAnimalCount(){
         return animalCount;
@@ -246,5 +240,17 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public int getNextAnimalID(){
         return animalCount+1;
+    }
+
+    @Override
+    public int getGrassCount(){
+        return grasses.size();
+    }
+
+    @Override
+    public int getEmptyFieldsCount(){
+        Set<Vector2d> worldElements = new HashSet<>(animals.keySet());
+        worldElements.addAll(grasses.keySet());
+        return getHeight()*getWidth() - worldElements.size();
     }
 }

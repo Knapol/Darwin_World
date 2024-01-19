@@ -1,6 +1,5 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.model.map.MoveValidator;
 import agh.ics.oop.model.map.WorldMap;
 
 import java.util.HashSet;
@@ -59,16 +58,16 @@ public class Animal implements WorldElement{
         return this.position.equals(position);
     }
 
-    public void update(MoveValidator moveValidator){
+    public void update(){
         rotate();
-        move(moveValidator);
+        move();
     }
 
     private void rotate(){
         direction = direction.rotate(genome.getNextGene(map.getAnimalBehavior()));
     }
 
-    private void move(MoveValidator moveValidator){
+    private void move(){
         this.energy -= map.getMoveCost();
         Vector2d testPosition;
 
@@ -92,7 +91,7 @@ public class Animal implements WorldElement{
             return;
         }
 
-        daysAlive+=1;
+        daysAlive++;
         position = testPosition;
     }
 
@@ -173,5 +172,9 @@ public class Animal implements WorldElement{
 
     public long getID(){
         return ID;
+    }
+
+    public Genome getGenome(){
+        return genome;
     }
 }

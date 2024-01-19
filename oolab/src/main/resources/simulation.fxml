@@ -5,15 +5,78 @@
 <?import javafx.scene.layout.GridPane?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             minHeight="550.0" minWidth="850.0"
             stylesheets="simulation.css"
             fx:controller="agh.ics.oop.presenter.SimulationPresenter">
     <center>
-        <VBox>
-            <GridPane fx:id="mapGrid" gridLinesVisible="true" alignment="CENTER"/>
-            <Button text="pause" onAction="#onPause"/>
-        </VBox>
+        <HBox>
+            <VBox>
+                <GridPane fx:id="mapGrid" gridLinesVisible="true" alignment="CENTER"/>
+                <Button text="pause" onAction="#onPause"/>
+            </VBox>
+            <VBox>
+                <Pane style="-fx-border-color: black">
+                    <VBox>
+                        <HBox>
+                            <Label styleClass="statsName" text="Day: "/>
+                            <Label styleClass="statsData" fx:id="statDay"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Number of animals: "/>
+                            <Label styleClass="statsData" fx:id="statAnimalsNumber"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Number of grass: "/>
+                            <Label styleClass="statsData" fx:id="statGrassNumber"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Number of free fields: "/>
+                            <Label styleClass="statsData" fx:id="statFreeFieldNumber"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Most popular genome: "/>
+                            <Label styleClass="statsData" fx:id="statMostPopularGenome"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Average energy: "/>
+                            <Label styleClass="statsData" fx:id="statAverageEnergy"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Average lifespan: "/>
+                            <Label styleClass="statsData" fx:id="statAverageLifespan"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Average number of children: "/>
+                            <Label styleClass="statsData" fx:id="statAverageNumberOfChildren"/>
+                        </HBox>
+                    </VBox>
+                </Pane>
+
+                <Pane style="-fx-border-color: black">
+                    <VBox>
+                        <Label text="Genome: "/>
+                        <Label text="Active gene: "/>
+                        <Label text="Energy: "/>
+                        <Label text="Eaten grass: "/>
+                        <Label text="Number of children: "/>
+                        <Label text="Number of descendants: "/>
+                        <Label text="Days alive: "/>
+                        <Label text="Died on day: "/>
+                    </VBox>
+                </Pane>
+            </VBox>
+        </HBox>
     </center>
 </BorderPane>

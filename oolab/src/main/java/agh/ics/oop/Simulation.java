@@ -1,20 +1,24 @@
 package agh.ics.oop;
-import agh.ics.oop.model.Animal;
-import agh.ics.oop.model.MoveDirection;
-import agh.ics.oop.model.SimulationState;
-import agh.ics.oop.model.Vector2d;
+import agh.ics.oop.model.*;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Simulation implements Runnable {
     private final List<Animal> animals = new ArrayList<>();
     private final WorldMap map;
     private SimulationState simulationState = SimulationState.RUNNING;
+    private int deadAnimalsCount;
+    private int sumOfLivedDays;
+    private final int startingEnergy;
+    private String dominantGenome;
+    private int day;
 
     public Simulation(WorldMap map){
         this.map = map;
+        this.startingEnergy = map.getStartingEnergy();
         createAndPlaceAnimals();
     }
 
@@ -53,6 +57,8 @@ public class Simulation implements Runnable {
             if (animal.getEnergy() <= 0){
                 it.remove();
                 map.handleAnimalDeath(animal);
+                deadAnimalsCount++;
+                sumOfLivedDays += animal.getDaysAlive();
                 continue;
             }
             map.move(animal);
@@ -68,6 +74,7 @@ public class Simulation implements Runnable {
 
         map.eatGrass();
         map.createNewGrass();
+        day++;
         map.mapChanged("New frame");
         Thread.sleep(500);
     }
@@ -86,5 +93,71 @@ public class Simulation implements Runnable {
 
     public SimulationState getSimulationState(){
         return simulationState;
+    }
+
+    //statistics
+    public int getDay(){
+        return day;
+    }
+
+    public int getAnimalCount(){
+        return map.getAnimalCount();
+    }
+
+    public int getGrassCount(){
+        return map.getGrassCount();
+    }
+
+    public int getEmptyFieldsCount(){
+        return map.getEmptyFieldsCount();
+    }
+
+    public String getMostPopularGenomes(){
+        Map<String, Integer> genomeMap = animals.stream()
+                .collect(Collectors.groupingBy(animal -> animal.getGenome().toString(), Collectors.summingInt(x -> 1)));
+
+        String dominantGenome = "";
+        int dominantCount = 0;
+        for (Map.Entry<String, Integer> entry : genomeMap.entrySet()){
+            String genome = entry.getKey();
+            int count = entry.getValue();
+            if (dominantCount < count){
+                dominantCount = count;
+                dominantGenome = genome;
+            }
+        }
+        //I do this attribute, so I don't have to repeat all of those operations, when user pause the game
+        this.dominantGenome = dominantGenome;
+        return dominantGenome + " " + dominantCount;
+    }
+
+    public List<Animal> dominantGenomeAnimals(){
+        return animals.stream()
+                .filter(animal -> animal.getGenome().toString().equals(this.dominantGenome))
+                .collect(Collectors.toList());
+    }
+
+    public double getAverageEnergy(){
+        int energySum = 0;
+        for(Animal animal : animals){
+            energySum += animal.getEnergy();
+        }
+        return (double)energySum / animals.size();
+    }
+
+    public double getAverageDaysLived(){
+        return (double) sumOfLivedDays / deadAnimalsCount;
+    }
+
+    public double getAverageChildCount(){
+        int childSum = 0;
+        for (Animal animal : animals){
+            childSum += animal.getNumberOfChildren();
+        }
+        return (double) childSum / animals.size();
+    }
+
+    public int getStartingEnergy(){
+        return this.startingEnergy;
     }
 }
