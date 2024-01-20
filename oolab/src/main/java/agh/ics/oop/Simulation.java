@@ -1,7 +1,6 @@
 package agh.ics.oop;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.map.WorldMap;
-import agh.ics.oop.model.exceptions.PositionAlreadyOccupiedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +56,7 @@ public class Simulation implements Runnable {
             if (animal.getEnergy() <= 0){
                 it.remove();
                 map.handleAnimalDeath(animal);
+                animal.die(this.day);
                 deadAnimalsCount++;
                 sumOfLivedDays += animal.getDaysAlive();
                 continue;
@@ -71,12 +71,11 @@ public class Simulation implements Runnable {
         }
 
         map.breedAnimals(animals);
-
         map.eatGrass();
         map.createNewGrass();
         day++;
         map.mapChanged("New frame");
-        Thread.sleep(500);
+        Thread.sleep(250);
     }
 
     public void pause(){
@@ -95,7 +94,7 @@ public class Simulation implements Runnable {
         return simulationState;
     }
 
-    //statistics
+    //global statistic
     public int getDay(){
         return day;
     }
@@ -131,10 +130,11 @@ public class Simulation implements Runnable {
         return dominantGenome + " " + dominantCount;
     }
 
-    public List<Animal> dominantGenomeAnimals(){
+    public Set<Vector2d> dominantGenomeAnimals(){
         return animals.stream()
                 .filter(animal -> animal.getGenome().toString().equals(this.dominantGenome))
-                .collect(Collectors.toList());
+                .map(Animal::getPosition)
+                .collect(Collectors.toSet());
     }
 
     public double getAverageEnergy(){

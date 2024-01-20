@@ -9,7 +9,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     private static final Vector2d LOWER_LEFT_BORDER = new Vector2d(0,0);
     private final Vector2d UPPER_RIGHT_BORDER;
     protected UUID id = UUID.randomUUID();
-    protected HashMap<Vector2d, List<Animal>> animals = new HashMap<>();
+    protected HashMap<Vector2d, HashSet<Animal>> animals = new HashMap<>();
     protected HashMap<Vector2d, Grass> grasses = new HashMap<>();
     protected List<MapChangeListener> observers = new ArrayList<>();
     protected MapVisualizer mapVisualizer = new MapVisualizer(this);
@@ -27,7 +27,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     private final AnimalBehavior animalBehavior;
     private int animalCount;
 
-    private AnimalComparator animalComparator;
+    private final AnimalComparator animalComparator;
 
     public AbstractWorldMap(Settings settings){
         this.UPPER_RIGHT_BORDER = new Vector2d(settings.mapWidth()-1, settings.mapHeight()-1);
@@ -69,9 +69,12 @@ public abstract class AbstractWorldMap implements WorldMap {
         Vector2d startingPosition = animal.getPosition();
         animal.update();
 
-        animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
-        animals.get(animal.getPosition()).add(animal);
-        animals.get(startingPosition).remove(animal);
+        animals.putIfAbsent(animal.getPosition(), new HashSet<>());
+
+        if (startingPosition != animal.getPosition()) {
+            animals.get(animal.getPosition()).add(animal);
+            animals.get(startingPosition).remove(animal);
+        }
 
         if (animals.get(startingPosition).isEmpty()){
             animals.remove(startingPosition);
@@ -88,15 +91,26 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public void breedAnimals(List<Animal> animalsList){
-        for (List<Animal> animalsOnPos : animals.values()){
+        for (Set<Animal> animalsOnPos : animals.values()){
             if (animalsOnPos.size() < 2) {
                 continue;
             }
+            Set<Animal> animalsOnPosCopy = new HashSet<>(animalsOnPos);
 
-            animalsOnPos.sort(animalComparator.reversed());
+            Animal animal1 = animalsOnPosCopy.stream()
+                    .max(animalComparator)
+                    .orElse(null);
 
-            Animal animal1 = animalsOnPos.get(0);
-            Animal animal2 = animalsOnPos.get(1);
+            animalsOnPosCopy.remove(animal1);
+
+            Animal animal2 = animalsOnPosCopy.stream()
+                    .max(animalComparator)
+                    .orElse(null);
+
+
+            if(animal1 == null || animal2 == null){
+                continue;
+            }
 
             Animal child = animal1.breed(animal2);
             if (child != null) {
@@ -113,10 +127,18 @@ public abstract class AbstractWorldMap implements WorldMap {
         while (it.hasNext()){
             Vector2d pos = it.next();
             if (animals.get(pos) != null){
-                if (animals.get(pos).size() >= 2) {
-                    animals.get(pos).sort(animalComparator.reversed());
+
+                Animal animal = animals.get(pos).stream()
+                        .max(animalComparator)
+                        .orElse(null);
+
+                if (animal != null) {
+                    animal.eat(this.grassEnergy);
                 }
-                animals.get(pos).get(0).eat(this.grassEnergy);
+//                if (animals.get(pos).size() >= 2) {
+//                    animals.get(pos).sort(animalComparator.reversed());
+//                }
+//                animals.get(pos).get(0).eat(this.grassEnergy);
 
                 grasses.remove(pos);
                 updateRandomPositionGenerator(pos);
@@ -128,11 +150,9 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public void place(Animal animal) {
-        animals.putIfAbsent(animal.getPosition(), new ArrayList<>());
+        animals.putIfAbsent(animal.getPosition(), new HashSet<>());
         animals.get(animal.getPosition()).add(animal);
         animalCount++;
-
-        mapChanged("Animal was added into position " + animal.getPosition());
     }
 
     @Override
@@ -143,18 +163,11 @@ public abstract class AbstractWorldMap implements WorldMap {
     @Override
     public WorldElement objectAt(Vector2d position){
         if (animals.get(position) != null) {
-            return animals.get(position).get(0);
+            return animals.get(position).stream()
+                    .max(animalComparator)
+                    .orElse(null);
         }
         return null;
-    }
-
-    @Override
-    public ArrayList<WorldElement> getElements(){
-        ArrayList<WorldElement> allAnimals = new ArrayList<>();
-        for (List<Animal> setOfAnimals : animals.values()){
-            allAnimals.addAll(setOfAnimals);
-        }
-        return allAnimals;
     }
 
     @Override

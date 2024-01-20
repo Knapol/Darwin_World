@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -89,6 +90,11 @@ public class InputPresenter {
     private ComboBox<String> savedSettings;
 
     @FXML
+    private CheckBox saveStatsCheckBox;
+
+    @FXML TextField statsName;
+
+    @FXML
     private void onStart() throws IOException {
         if (validateSettings()) {
             FXMLLoader loader = new FXMLLoader();
@@ -113,7 +119,7 @@ public class InputPresenter {
 
             simulationStage.show();
 
-            presenter.createSimulation(simulationStage);
+            presenter.createSimulation(simulationStage, statsName.getText());
         }
     }
 
@@ -168,6 +174,7 @@ public class InputPresenter {
             textField.setText("0");
         }
         betterFieldDuration.setDisable(true);
+        statsName.setDisable(true);
     }
 
     @FXML
@@ -178,6 +185,17 @@ public class InputPresenter {
         }
         else{
             betterFieldDuration.setDisable(false);
+        }
+    }
+
+    @FXML
+    private void onSaveStatisticChange(){
+        if (saveStatsCheckBox.isSelected()) {
+            statsName.setDisable(false);
+        }
+        else{
+            statsName.setDisable(true);
+            statsName.setText("");
         }
     }
 
@@ -204,19 +222,21 @@ public class InputPresenter {
 
     @FXML
     private void saveSettingsToFile(){
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedSettings/"+currentSettingsName.getText(), true))){
-            for (TextField textField : textFields){
-                writer.write(textField.getText());
-                writer.write(",");
+        if (!currentSettingsName.getText().isEmpty()) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedSettings/" + currentSettingsName.getText(), true))) {
+                for (TextField textField : textFields) {
+                    writer.write(textField.getText());
+                    writer.write(",");
+                }
+                writer.newLine();
+                writer.write(mapTypeComboBox.getValue().name());
+                writer.newLine();
+                writer.write(animalBehaviorComboBox.getValue().name());
+                writer.newLine();
+                savedSettings.getItems().add(currentSettingsName.getText());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            writer.newLine();
-            writer.write(mapTypeComboBox.getValue().name());
-            writer.newLine();
-            writer.write(animalBehaviorComboBox.getValue().name());
-            writer.newLine();
-            savedSettings.getItems().add(currentSettingsName.getText());
-        }catch(IOException e){
-            e.printStackTrace();
         }
     }
 

@@ -114,4 +114,8 @@ public class Genome {
             this.genome.set(genomeToMutate, random.nextInt(8));
         }
     }
+
+    public int getActiveGene(){
+        return this.genome.get(activeGene);
+    }
 }

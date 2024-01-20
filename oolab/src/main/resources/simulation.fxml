@@ -66,14 +66,47 @@
 
                 <Pane style="-fx-border-color: black">
                     <VBox>
-                        <Label text="Genome: "/>
-                        <Label text="Active gene: "/>
-                        <Label text="Energy: "/>
-                        <Label text="Eaten grass: "/>
-                        <Label text="Number of children: "/>
-                        <Label text="Number of descendants: "/>
-                        <Label text="Days alive: "/>
-                        <Label text="Died on day: "/>
+                        <HBox>
+                            <Label styleClass="statsName" text="Genome: "/>
+                            <Label styleClass="statsData" fx:id="statGenome"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Active gene: "/>
+                            <Label styleClass="statsData" fx:id="statActiveGene"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Energy: "/>
+                            <Label styleClass="statsData" fx:id="statEnergy"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Eaten grass: "/>
+                            <Label styleClass="statsData" fx:id="statEatenGrass"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Number of children: "/>
+                            <Label styleClass="statsData" fx:id="statNumberOfChildren"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Number of descendants: "/>
+                            <Label styleClass="statsData" fx:id="statNumberOfDescendants"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Days alive: "/>
+                            <Label styleClass="statsData" fx:id="statDaysAlive"/>
+                        </HBox>
+
+                        <HBox>
+                            <Label styleClass="statsName" text="Died on day: "/>
+                            <Label styleClass="statsData" fx:id="statDeathDay"/>
+                        </HBox>
+
+                        <Button text="Disable tracking" fx:id="disableTrackingButton" onAction="#disableAnimalTracking"/>
                     </VBox>
                 </Pane>
             </VBox>

@@ -19,8 +19,6 @@ public interface WorldMap {
 
     WorldElement objectAt(Vector2d position);
 
-    ArrayList<WorldElement> getElements();
-
     UUID getId();
 
     Boundary getCurrentBounds();

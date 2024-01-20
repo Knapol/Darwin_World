@@ -12,6 +12,8 @@ public class Animal implements WorldElement{
     private final Genome genome;
     private int energy;
     private int daysAlive;
+    private int eatenGrass;
+    private int deathDay;
     private Animal father;
     private Animal mother;
     private int numberOfChildren;
@@ -61,6 +63,11 @@ public class Animal implements WorldElement{
     public void update(){
         rotate();
         move();
+        daysAlive++;
+    }
+
+    public void die(int day){
+        deathDay = day;
     }
 
     private void rotate(){
@@ -90,8 +97,6 @@ public class Animal implements WorldElement{
             position = testPosition;
             return;
         }
-
-        daysAlive++;
         position = testPosition;
     }
 
@@ -144,10 +149,7 @@ public class Animal implements WorldElement{
 
     public void eat(int grassEnergy){
         this.energy += grassEnergy;
-    }
-
-    public MapDirection getDirection(){
-        return direction;
+        this.eatenGrass += 1;
     }
 
     public Vector2d getPosition(){
@@ -176,5 +178,13 @@ public class Animal implements WorldElement{
 
     public Genome getGenome(){
         return genome;
+    }
+
+    public int getEatenGrass(){
+        return eatenGrass;
+    }
+
+    public int getDeathDay(){
+        return deathDay;
     }
 }

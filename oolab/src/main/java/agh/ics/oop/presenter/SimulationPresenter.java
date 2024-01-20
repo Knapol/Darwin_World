@@ -1,16 +1,15 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.OptionsParser;
 import agh.ics.oop.Simulation;
-import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
 
 import agh.ics.oop.model.map.WorldMap;
-import com.sun.util.reentrant.ReentrantContextProviderCLQ;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.scene.control.*;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,16 +18,22 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.URL;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 public class SimulationPresenter implements MapChangeListener {
     private WorldMap worldMap;
     private Simulation simulation;
+
+    private final Background betterField = new Background(new BackgroundFill(Color.rgb(222,184,135), CornerRadii.EMPTY, Insets.EMPTY));
+    private final Background normalField = new Background(new BackgroundFill(Color.rgb(255,235,205), CornerRadii.EMPTY, Insets.EMPTY));
+    private final Border trackedAnimalBorder = new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
+    private final Border defaultBorder = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(0.4)));
+    private final Border dominantGenomeBorder = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     @FXML
     private GridPane mapGrid;
@@ -39,7 +44,7 @@ public class SimulationPresenter implements MapChangeListener {
     private Image animalLowHpImage;
     private Image grassImage;
 
-    //Statistics
+    //Global statistics
     @FXML
     private Label statDay;
     @FXML
@@ -56,21 +61,59 @@ public class SimulationPresenter implements MapChangeListener {
     private Label statAverageLifespan;
     @FXML
     private Label statAverageNumberOfChildren;
+    private List<Label> globalStatsLabels;
+
+    //Tracked animal statistics
+    @FXML
+    private Label statGenome;
+    @FXML
+    private Label statActiveGene;
+    @FXML
+    private Label statEnergy;
+    @FXML
+    private Label statEatenGrass;
+    @FXML
+    private Label statNumberOfChildren;
+    @FXML
+    private Label statNumberOfDescendants;
+    @FXML
+    private Label statDaysAlive;
+    @FXML
+    private Label statDeathDay;
+
+    private List<Label> animalStatsLabels;
+
+    @FXML
+    private Button disableTrackingButton;
+    private Animal trackedAnimal;
+    private Set<Vector2d> dominantGenomeAnimalsPositions;
+
+    private String statsFileName;
+
+    private Label[][] labelArray;
 
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
 
         int side = 500/(Math.max(worldMap.getHeight(), worldMap.getWidth())+1);
-
         CELL_HEIGHT = side;
         CELL_WIDTH = side;
+
+        labelArray = new Label[worldMap.getWidth()+1][worldMap.getHeight()+1];
+        initializeGrid(worldMap.getCurrentBounds());
+        initializeMapLabels();
+        drawCoordinates(worldMap.getCurrentBounds());
     }
 
     @Override
     public void mapChanged(WorldMap worldMap, String message){
         Platform.runLater(() -> {
             drawMap();
-            updateStatistic();
+            updateGlobalStatistic();
+            updateAnimalStatistic();
+            if (!this.statsFileName.isEmpty()){
+                saveStatsToFile();
+            }
         });
     }
 
@@ -81,17 +124,44 @@ public class SimulationPresenter implements MapChangeListener {
             animalHalfHpImage = new Image(new FileInputStream("src/main/resources/images/animalHalfHp.png"));
             animalLowHpImage = new Image(new FileInputStream("src/main/resources/images/animalLowHp.png"));
             grassImage = new Image(new FileInputStream("src/main/resources/images/grass.png"));
+            disableTrackingButton.setDisable(true);
+            initializeStatLabels();
+            this.dominantGenomeAnimalsPositions = new HashSet<>();
         }catch(FileNotFoundException e){
             e.printStackTrace();
         }
     }
 
+    private void initializeStatLabels(){
+        animalStatsLabels = List.of(
+                statGenome,
+                statActiveGene,
+                statEnergy,
+                statEatenGrass,
+                statNumberOfChildren,
+                statNumberOfDescendants,
+                statDaysAlive,
+                statDeathDay
+        );
+
+        globalStatsLabels = List.of(
+                statDay,
+                statAnimalsNumber,
+                statGrassNumber,
+                statFreeFieldNumber,
+                statMostPopularGenome,
+                statAverageEnergy,
+                statAverageLifespan,
+                statAverageNumberOfChildren
+        );
+    }
+
     private void drawMap(){
         clearGrid();
         Boundary currentBound = worldMap.getCurrentBounds();
-
-        initializeGrid(currentBound);
-        drawCoordinates(currentBound);
+        initializeGrid(worldMap.getCurrentBounds());
+        initializeMapLabels();
+        drawCoordinates(worldMap.getCurrentBounds());
         drawWorldElements(currentBound);
     }
 
@@ -116,6 +186,7 @@ public class SimulationPresenter implements MapChangeListener {
             label.prefHeight(CELL_WIDTH);
             label.prefWidth(CELL_HEIGHT);
             mapGrid.add(label, currentCol, 0);
+            labelArray[currentCol][0] = label;
             GridPane.setHalignment(label, HPos.CENTER);
             currentCol++;
         }
@@ -126,32 +197,44 @@ public class SimulationPresenter implements MapChangeListener {
             label.prefHeight(CELL_WIDTH);
             label.prefWidth(CELL_HEIGHT);
             mapGrid.add(label, 0, currentRow);
+            labelArray[0][currentRow] = label;
             GridPane.setHalignment(label, HPos.CENTER);
             currentRow++;
         }
     }
 
-    private void drawWorldElements(Boundary boundary) {
+    private void initializeMapLabels(){
         int width = worldMap.getWidth();
         int height = worldMap.getHeight();
 
         for (int x = 1; x <= width; x++) {
             for (int y = height; y >= 1; y--) {
-                Vector2d pos = new Vector2d(x - 1 + boundary.lowerLeft().getX(), y - 1 + boundary.lowerLeft().getY());
+                Label label = new Label();
+                label.setMinHeight(CELL_WIDTH);
+                label.setMinWidth(CELL_HEIGHT);
+                labelArray[x][height - y + 1] = label;
+                setAnimalClickHandler(label);
+                mapGrid.add(label, x, height - y + 1);
+                GridPane.setHalignment(label, HPos.CENTER);
+            }
+        }
+    }
 
-                Rectangle rectangle;
+    private void drawWorldElements(Boundary boundary){
+        int width = worldMap.getWidth();
+        int height = worldMap.getHeight();
+        for (int x = 1; x <= width; x++) {
+            for (int y = 1; y <= height; y++) {
+                Vector2d pos = new Vector2d(x - 1, y - 1);
+                Label label = labelArray[x][y];
+                label.setBorder(defaultBorder);
+
                 if (worldMap.isBetterField(pos)){
-                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(222,184,135));
+                    label.setBackground(betterField);
                 }
                 else{
-                    rectangle = new Rectangle(CELL_WIDTH, CELL_HEIGHT, Color.rgb(255,235,205));
+                    label.setBackground(normalField);
                 }
-
-                rectangle.setStroke(Color.BLACK);
-                rectangle.setStrokeWidth(1);
-
-                mapGrid.add(rectangle, x, height - y + 1);
-                GridPane.setHalignment(rectangle, HPos.CENTER);
 
                 if (worldMap.isOccupied(pos)) {
                     ImageView imageView;
@@ -163,12 +246,17 @@ public class SimulationPresenter implements MapChangeListener {
                         imageView = new ImageView(getAnimalImage(animal));
                     }
 
-                    imageView.setFitHeight(CELL_HEIGHT);
-                    imageView.setFitWidth(CELL_WIDTH);
-
-                    mapGrid.add(imageView, x, height - y + 1);
-                    GridPane.setHalignment(imageView, HPos.CENTER);
-                }
+                    if (this.trackedAnimal != null && this.trackedAnimal.getPosition().equals(pos)){
+                        label.setBorder(trackedAnimalBorder);
+                        imageView.setFitHeight(CELL_HEIGHT-4);
+                        imageView.setFitWidth(CELL_WIDTH-4);
+                    }
+                    else {
+                        imageView.setFitHeight(CELL_HEIGHT);
+                        imageView.setFitWidth(CELL_WIDTH);
+                    }
+                    label.setGraphic(imageView);
+               }
             }
         }
     }
@@ -189,7 +277,11 @@ public class SimulationPresenter implements MapChangeListener {
         mapGrid.getRowConstraints().clear();
     }
 
-    public void createSimulation(Stage simulationStage){
+    public void createSimulation(Stage simulationStage, String statsFileName){
+        this.statsFileName = statsFileName;
+        if (!this.statsFileName.isEmpty()){
+            createStatsFile();
+        }
         simulation = new Simulation(worldMap);
         Thread thread = new Thread(simulation);
         thread.start();
@@ -200,14 +292,59 @@ public class SimulationPresenter implements MapChangeListener {
     private void onPause(){
         if (simulation.getSimulationState() == SimulationState.RUNNING) {
             simulation.pause();
+            this.dominantGenomeAnimalsPositions.addAll(simulation.dominantGenomeAnimals());
+            for (Vector2d pos : dominantGenomeAnimalsPositions){
+                if (this.trackedAnimal != null && this.trackedAnimal.getPosition().equals(pos)) {
+                    labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(trackedAnimalBorder);
+                }
+                else{
+                    labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(dominantGenomeBorder);
+                }
+                ImageView imageView = new ImageView(getAnimalImage((Animal) worldMap.objectAt(pos)));
+                imageView.setFitHeight(CELL_HEIGHT-4);
+                imageView.setFitWidth(CELL_WIDTH-4);
+                labelArray[pos.getX()+1][pos.getY()+1].setGraphic(imageView);
+            }
         }
-
         else{
+            this.dominantGenomeAnimalsPositions.clear();
             simulation.start();
         }
     }
 
-    private void updateStatistic(){
+    private void setAnimalClickHandler(Label label){
+        label.setOnMouseClicked(event -> {
+            if (simulation.getSimulationState() == SimulationState.PAUSED){
+                Vector2d position = new Vector2d(GridPane.getColumnIndex(label)-1, GridPane.getRowIndex(label) -1);
+                if (worldMap.isOccupied(position)){
+                    if (worldMap.objectAt(position) instanceof Animal){
+                        if (trackedAnimal != null){
+                            if (!dominantGenomeAnimalsPositions.contains(trackedAnimal.getPosition())){
+                                ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
+                                imageView.setFitHeight(CELL_HEIGHT);
+                                imageView.setFitWidth(CELL_WIDTH);
+                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(defaultBorder);
+                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setGraphic(imageView);
+                            }
+                            else {
+                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(dominantGenomeBorder);
+                            }
+                        }
+                        trackedAnimal = (Animal) worldMap.objectAt(position);
+                        disableTrackingButton.setDisable(false);
+                        updateAnimalStatistic();
+                        ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
+                        label.setBorder(trackedAnimalBorder);
+                        imageView.setFitHeight(CELL_HEIGHT-4);
+                        imageView.setFitWidth(CELL_WIDTH-4);
+                        label.setGraphic(imageView);
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateGlobalStatistic(){
         statDay.setText(String.valueOf(simulation.getDay()));
         statAnimalsNumber.setText(String.valueOf(simulation.getAnimalCount()));
         statGrassNumber.setText(String.valueOf(simulation.getGrassCount()));
@@ -216,5 +353,69 @@ public class SimulationPresenter implements MapChangeListener {
         statAverageEnergy.setText(String.format("%.2f", simulation.getAverageEnergy()));
         statAverageLifespan.setText(String.format("%.2f", simulation.getAverageDaysLived()));
         statAverageNumberOfChildren.setText(String.format("%.2f", simulation.getAverageChildCount()));
+    }
+
+    private void updateAnimalStatistic(){
+        if (trackedAnimal != null){
+            statGenome.setText(trackedAnimal.getGenome().toString());
+            statActiveGene.setText(String.valueOf(trackedAnimal.getGenome().getActiveGene()));
+            statEnergy.setText(String.valueOf(trackedAnimal.getEnergy()));
+            statEatenGrass.setText(String.valueOf(trackedAnimal.getEatenGrass()));
+            statNumberOfChildren.setText(String.valueOf(trackedAnimal.getNumberOfChildren()));
+            statNumberOfDescendants.setText(String.valueOf(trackedAnimal.getNumberOfDescendants()));
+            statDaysAlive.setText(String.valueOf(trackedAnimal.getDaysAlive()));
+            statDeathDay.setText(
+                    trackedAnimal.getDeathDay() != 0 ? String.valueOf(trackedAnimal.getDeathDay()) : "..."
+            );
+        }
+    }
+
+    @FXML
+    private void disableAnimalTracking(){
+        if (!dominantGenomeAnimalsPositions.contains(trackedAnimal.getPosition())){
+            ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
+            imageView.setFitHeight(CELL_HEIGHT);
+            imageView.setFitWidth(CELL_WIDTH);
+            labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(defaultBorder);
+            labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setGraphic(imageView);
+        }
+        else {
+            labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(dominantGenomeBorder);
+        }
+
+        trackedAnimal = null;
+        clearAnimalStatsLabels();
+        disableTrackingButton.setDisable(true);
+    }
+
+    private void clearAnimalStatsLabels(){
+        for (Label label : animalStatsLabels){
+            label.setText("");
+        }
+    }
+
+    private void createStatsFile(){
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedStatistics/"+this.statsFileName, true))){
+            for(Label label : globalStatsLabels){
+                writer.write(label.getId());
+                writer.write(";");
+            }
+            writer.newLine();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void saveStatsToFile(){
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedStatistics/"+this.statsFileName, true))){
+            for(Label label : globalStatsLabels){
+                writer.write(label.getText());
+                writer.write(";");
+            }
+            writer.newLine();
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }

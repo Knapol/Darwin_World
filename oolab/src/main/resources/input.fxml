@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             minHeight="550.0" minWidth="850.0"
@@ -27,7 +28,7 @@
             </HBox>
 
             <HBox>
-                <Label text="Number of animals"/>
+                <Label text="Animal count"/>
                 <TextField fx:id="numberOfAnimals"/>
             </HBox>
 
@@ -48,7 +49,7 @@
 
             <HBox>
                 <Label text="Animal behavior"/>
-                <ComboBox fx:id="animalBehaviorComboBox"/>
+                <ComboBox fx:id="animalBehaviorComboBox" prefWidth="150"/>
             </HBox>
 
             <HBox>
@@ -88,7 +89,7 @@
 
             <HBox>
                 <Label text="Map type"/>
-                <ComboBox fx:id="mapTypeComboBox" onAction="#onMapTypeChange"/>
+                <ComboBox fx:id="mapTypeComboBox" onAction="#onMapTypeChange" prefWidth="150.0"/>
             </HBox>
 
             <HBox>
@@ -97,8 +98,13 @@
             </HBox>
 
             <HBox>
+                <CheckBox fx:id="saveStatsCheckBox" onAction="#onSaveStatisticChange" text="Save statistics" style="-fx-padding: 0 10 0 0;"/>
+                <TextField fx:id="statsName"/>
+            </HBox>
+
+            <HBox>
                 <Button text="Start" onAction="#onStart"/>
-                <Label text="Settings name"/>
+                <Label maxWidth="80" text="Settings name"/>
                 <TextField fx:id="currentSettingsName"/>
                 <Button text="Save" onAction="#saveSettingsToFile"/>
                 <ComboBox fx:id="savedSettings"/>
