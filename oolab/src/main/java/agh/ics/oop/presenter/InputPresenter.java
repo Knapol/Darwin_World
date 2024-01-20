@@ -11,22 +11,18 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.w3c.dom.Text;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static java.lang.Integer.max;
 import static java.lang.Integer.parseInt;
@@ -144,6 +140,8 @@ public class InputPresenter {
         initializeAnimalBehaviorComboBox();
         initializeMapTypeComboBox();
         initializeTextFields();
+
+        addInputValidators();
     }
 
     private void initializeMapTypeComboBox(){
@@ -222,7 +220,7 @@ public class InputPresenter {
 
     @FXML
     private void saveSettingsToFile(){
-        if (!currentSettingsName.getText().isEmpty()) {
+        if (!currentSettingsName.getText().isEmpty() && validateSettings()) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/savedSettings/" + currentSettingsName.getText(), true))) {
                 for (TextField textField : textFields) {
                     writer.write(textField.getText());
@@ -242,30 +240,32 @@ public class InputPresenter {
 
     @FXML
     private void getSettingsFromFile(){
-        try(Scanner scanner = new Scanner(new File("src/main/resources/savedSettings/" + savedSettings.getValue()))){
-            int lineCounter = 0;
-            while(scanner.hasNextLine()){
-                String line = scanner.nextLine();
+        if (!savedSettings.getSelectionModel().isEmpty()) {
+            try (Scanner scanner = new Scanner(new File("src/main/resources/savedSettings/" + savedSettings.getValue()))) {
+                int lineCounter = 0;
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
 
-                switch(lineCounter) {
-                    case 0 -> {
-                        String[] dane = line.split(",");
+                    switch (lineCounter) {
+                        case 0 -> {
+                            String[] dane = line.split(",");
 
-                        int i = 0;
-                        for (TextField textField : textFields) {
-                            textField.setText(dane[i]);
-                            i++;
+                            int i = 0;
+                            for (TextField textField : textFields) {
+                                textField.setText(dane[i]);
+                                i++;
+                            }
                         }
+                        case 1 -> mapTypeComboBox.setValue(MapType.valueOf(line));
+                        case 2 -> animalBehaviorComboBox.setValue(AnimalBehavior.valueOf(line));
                     }
-                    case 1 -> mapTypeComboBox.setValue(MapType.valueOf(line));
-                    case 2 -> animalBehaviorComboBox.setValue(AnimalBehavior.valueOf(line));
+                    lineCounter++;
                 }
-                lineCounter++;
-            }
-            betterFieldDuration.setDisable(mapTypeComboBox.getValue() == MapType.FORESTED_EQUATORS);
+                betterFieldDuration.setDisable(mapTypeComboBox.getValue() == MapType.FORESTED_EQUATORS);
 
-        }catch(IOException e){
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -277,13 +277,75 @@ public class InputPresenter {
         if (animalBehaviorComboBox.getValue() == null){
             return false;
         }
-        //need to add some better validations if there will be enough time
+
         for(TextField textField : textFields){
             if (textField.getText().isEmpty()){
                 return false;
             }
         }
 
+        if (parseInt(minMutations.getText()) >= parseInt(maxMutations.getText())){
+            showWarningAlert("Minimal number of mutations must be lower than maximum number!");
+            return false;
+        }
+
         return true;
+    }
+
+    private void showWarningAlert(String content){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void addInputValidators(){
+        addSingleInputValidator(mapWidth, 1, 30);
+        addSingleInputValidator(mapHeight, 1, 30);
+        addSingleInputValidator(numberOfAnimals, 1, 100);
+        addSingleInputValidator(genomeSize, 1, 20);
+        addSingleInputValidator(minMutations, 0, 20);
+        addSingleInputValidator(maxMutations, 0, 20);
+        addSingleInputValidator(startingEnergy, 1, 1000);
+        addSingleInputValidator(moveCost, 0, 1000);
+        addSingleInputValidator(minEnergyToBreed, 0, 1000);
+        addSingleInputValidator(energyUseForBreeding, 0, 1000);
+        addSingleInputValidator(grassCount, 0, 900);
+        addSingleInputValidator(grassEnergy, 0, 1000);
+        addSingleInputValidator(grassPerDay, 0, 900);
+        addSingleInputValidator(betterFieldDuration, 0, 1000);
+    }
+
+    private void addSingleInputValidator(TextField textField, int minValue, int maxValue){
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue.equals("")){
+                    return;
+                }
+                textField.setText(String.valueOf(validateInput(parseInt(textField.getText()), minValue, maxValue)));
+            }catch(NumberFormatException e){
+                textField.setText(Integer.toString(minValue));
+            }
+        });
+
+        textField.focusedProperty().addListener((observable, oldValue, newValue) ->{
+            if (!newValue) {
+                if (textField.getText().equals("")){
+                    textField.setText(Integer.toString(minValue));
+                }
+
+                textField.setText(String.valueOf(validateInput(parseInt(textField.getText()), minValue, maxValue)));
+            }
+        });
+    }
+
+    private int validateInput(int value, int minValue, int maxValue){
+        if (value < minValue){
+            return minValue;
+        }
+        if (value > maxValue){
+            return maxValue;
+        }
+        return value;
     }
 }

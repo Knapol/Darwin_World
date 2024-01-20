@@ -50,6 +50,22 @@ public class Simulation implements Runnable {
     }
 
     private void newSimulationDay() throws InterruptedException{
+        moveAnimals();
+
+        if (animals.isEmpty()){
+            simulationState = SimulationState.ENDED;
+            return;
+        }
+
+        map.breedAnimals(animals);
+        map.eatGrass();
+        map.createNewGrass();
+        day++;
+        map.mapChanged("New frame");
+        Thread.sleep(250);
+    }
+
+    private void moveAnimals(){
         Iterator<Animal> it = animals.iterator();
         while (it.hasNext()){
             Animal animal = it.next();
@@ -63,19 +79,6 @@ public class Simulation implements Runnable {
             }
             map.move(animal);
         }
-
-        if (animals.isEmpty()){
-            System.out.println("All dead sadge");
-            simulationState = SimulationState.ENDED;
-            return;
-        }
-
-        map.breedAnimals(animals);
-        map.eatGrass();
-        map.createNewGrass();
-        day++;
-        map.mapChanged("New frame");
-        Thread.sleep(250);
     }
 
     public void pause(){

@@ -17,5 +17,5 @@ VBox {
 .statsData{
     -fx-alignment: baseline-right;
     -fx-padding: 2;
-    -fx-pref-width: 80;
+    -fx-pref-width: 150;
 }
