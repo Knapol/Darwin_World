@@ -159,10 +159,10 @@ public class SimulationPresenter implements MapChangeListener {
     private void drawMap(){
         clearGrid();
         Boundary currentBound = worldMap.getCurrentBounds();
-        initializeGrid(worldMap.getCurrentBounds());
+        initializeGrid(currentBound);
         initializeMapLabels();
-        drawCoordinates(worldMap.getCurrentBounds());
-        drawWorldElements(currentBound);
+        drawCoordinates(currentBound);
+        drawWorldElements();
     }
 
     private void initializeGrid(Boundary boundary){
@@ -220,9 +220,10 @@ public class SimulationPresenter implements MapChangeListener {
         }
     }
 
-    private void drawWorldElements(Boundary boundary){
+    private void drawWorldElements(){
         int width = worldMap.getWidth();
         int height = worldMap.getHeight();
+
         for (int x = 1; x <= width; x++) {
             for (int y = 1; y <= height; y++) {
                 Vector2d pos = new Vector2d(x - 1, y - 1);
@@ -292,23 +293,28 @@ public class SimulationPresenter implements MapChangeListener {
     private void onPause(){
         if (simulation.getSimulationState() == SimulationState.RUNNING) {
             simulation.pause();
-            this.dominantGenomeAnimalsPositions.addAll(simulation.dominantGenomeAnimals());
-            for (Vector2d pos : dominantGenomeAnimalsPositions){
-                if (this.trackedAnimal != null && this.trackedAnimal.getPosition().equals(pos)) {
-                    labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(trackedAnimalBorder);
-                }
-                else{
-                    labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(dominantGenomeBorder);
-                }
-                ImageView imageView = new ImageView(getAnimalImage((Animal) worldMap.objectAt(pos)));
-                imageView.setFitHeight(CELL_HEIGHT-4);
-                imageView.setFitWidth(CELL_WIDTH-4);
-                labelArray[pos.getX()+1][pos.getY()+1].setGraphic(imageView);
-            }
+            highlightDominantGenomeAnimals();
         }
         else{
             this.dominantGenomeAnimalsPositions.clear();
             simulation.start();
+        }
+    }
+
+    private void highlightDominantGenomeAnimals(){
+        this.dominantGenomeAnimalsPositions.addAll(simulation.dominantGenomeAnimals());
+        for (Vector2d pos : dominantGenomeAnimalsPositions){
+            if (this.trackedAnimal != null && this.trackedAnimal.getPosition().equals(pos)) {
+                labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(trackedAnimalBorder);
+            }
+            else{
+                labelArray[pos.getX() + 1][pos.getY() + 1].setBorder(dominantGenomeBorder);
+            }
+
+            ImageView imageView = new ImageView(getAnimalImage((Animal) worldMap.objectAt(pos)));
+            imageView.setFitHeight(CELL_HEIGHT-4);
+            imageView.setFitWidth(CELL_WIDTH-4);
+            labelArray[pos.getX()+1][pos.getY()+1].setGraphic(imageView);
         }
     }
 
@@ -319,25 +325,12 @@ public class SimulationPresenter implements MapChangeListener {
                 if (worldMap.isOccupied(position)){
                     if (worldMap.objectAt(position) instanceof Animal){
                         if (trackedAnimal != null){
-                            if (!dominantGenomeAnimalsPositions.contains(trackedAnimal.getPosition())){
-                                ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
-                                imageView.setFitHeight(CELL_HEIGHT);
-                                imageView.setFitWidth(CELL_WIDTH);
-                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(defaultBorder);
-                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setGraphic(imageView);
-                            }
-                            else {
-                                labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(dominantGenomeBorder);
-                            }
+                            fixAnimalImageView();
                         }
                         trackedAnimal = (Animal) worldMap.objectAt(position);
                         disableTrackingButton.setDisable(false);
                         updateAnimalStatistic();
-                        ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
-                        label.setBorder(trackedAnimalBorder);
-                        imageView.setFitHeight(CELL_HEIGHT-4);
-                        imageView.setFitWidth(CELL_WIDTH-4);
-                        label.setGraphic(imageView);
+                        highlightTrackedAnimal(label);
                     }
                 }
             }
@@ -372,6 +365,21 @@ public class SimulationPresenter implements MapChangeListener {
 
     @FXML
     private void disableAnimalTracking(){
+        fixAnimalImageView();
+        trackedAnimal = null;
+        clearAnimalStatsLabels();
+        disableTrackingButton.setDisable(true);
+    }
+
+    private void highlightTrackedAnimal(Label label){
+        ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
+        label.setBorder(trackedAnimalBorder);
+        imageView.setFitHeight(CELL_HEIGHT-4);
+        imageView.setFitWidth(CELL_WIDTH-4);
+        label.setGraphic(imageView);
+    }
+
+    private void fixAnimalImageView(){
         if (!dominantGenomeAnimalsPositions.contains(trackedAnimal.getPosition())){
             ImageView imageView = new ImageView(getAnimalImage(trackedAnimal));
             imageView.setFitHeight(CELL_HEIGHT);
@@ -382,10 +390,6 @@ public class SimulationPresenter implements MapChangeListener {
         else {
             labelArray[trackedAnimal.getPosition().getX()+1][trackedAnimal.getPosition().getY()+1].setBorder(dominantGenomeBorder);
         }
-
-        trackedAnimal = null;
-        clearAnimalStatsLabels();
-        disableTrackingButton.setDisable(true);
     }
 
     private void clearAnimalStatsLabels(){

@@ -135,10 +135,6 @@ public abstract class AbstractWorldMap implements WorldMap {
                 if (animal != null) {
                     animal.eat(this.grassEnergy);
                 }
-//                if (animals.get(pos).size() >= 2) {
-//                    animals.get(pos).sort(animalComparator.reversed());
-//                }
-//                animals.get(pos).get(0).eat(this.grassEnergy);
 
                 grasses.remove(pos);
                 updateRandomPositionGenerator(pos);
