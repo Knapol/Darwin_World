@@ -1,6 +1,10 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.util.RandomLGCPositionGenerator;
+import agh.ics.oop.model.worldElements.Animal;
+import agh.ics.oop.model.worldElements.Grass;
+import agh.ics.oop.model.worldElements.WorldElement;
 
 import java.util.HashMap;
 import java.util.Iterator;

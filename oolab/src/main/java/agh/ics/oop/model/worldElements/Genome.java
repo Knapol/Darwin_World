@@ -1,4 +1,4 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.worldElements;
 
 import java.util.ArrayList;
 import java.util.List;

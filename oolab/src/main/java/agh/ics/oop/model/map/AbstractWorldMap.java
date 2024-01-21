@@ -1,7 +1,11 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.util.MapVisualizer;
+import agh.ics.oop.model.util.AnimalComparator;
+import agh.ics.oop.model.worldElements.Animal;
+import agh.ics.oop.model.worldElements.AnimalBehavior;
+import agh.ics.oop.model.worldElements.Grass;
+import agh.ics.oop.model.worldElements.WorldElement;
 
 import java.util.*;
 
@@ -12,7 +16,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected HashMap<Vector2d, HashSet<Animal>> animals = new HashMap<>();
     protected HashMap<Vector2d, Grass> grasses = new HashMap<>();
     protected List<MapChangeListener> observers = new ArrayList<>();
-    protected MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     protected int genomeSize;
     private final int minMutations;
@@ -52,12 +55,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         this.animalCount = 0;
 
         this.animalComparator = new AnimalComparator();
-    }
-
-    @Override
-    public String toString(){
-        Boundary currentBound = getCurrentBounds();
-        return mapVisualizer.draw(currentBound.lowerLeft(), currentBound.upperRight());
     }
 
     public UUID getId(){

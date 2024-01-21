@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.map.MapType;
+import agh.ics.oop.model.worldElements.AnimalBehavior;
 
 public record Settings(
         int mapWidth,

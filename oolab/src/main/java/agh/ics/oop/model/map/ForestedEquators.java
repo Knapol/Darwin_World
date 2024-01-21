@@ -1,6 +1,9 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.util.RandomFEPositionGenerator;
+import agh.ics.oop.model.worldElements.Grass;
+import agh.ics.oop.model.worldElements.WorldElement;
 
 public class ForestedEquators extends AbstractWorldMap {
 

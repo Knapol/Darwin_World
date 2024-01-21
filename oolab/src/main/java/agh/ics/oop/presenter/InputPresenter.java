@@ -1,6 +1,6 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.AnimalBehavior;
+import agh.ics.oop.model.worldElements.AnimalBehavior;
 import agh.ics.oop.model.Settings;
 import agh.ics.oop.model.map.AbstractWorldMap;
 import agh.ics.oop.model.map.ForestedEquators;
@@ -24,7 +24,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-import static java.lang.Integer.max;
 import static java.lang.Integer.parseInt;
 
 public class InputPresenter {

@@ -4,22 +4,21 @@ import agh.ics.oop.Simulation;
 import agh.ics.oop.model.*;
 
 import agh.ics.oop.model.map.WorldMap;
+import agh.ics.oop.model.worldElements.Animal;
+import agh.ics.oop.model.worldElements.Grass;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,6 +107,10 @@ public class SimulationPresenter implements MapChangeListener {
     @Override
     public void mapChanged(WorldMap worldMap, String message){
         Platform.runLater(() -> {
+            if (trackedAnimal != null && trackedAnimal.getDeathDay() != 0){
+                trackedAnimal = null;
+            }
+
             drawMap();
             updateGlobalStatistic();
             updateAnimalStatistic();

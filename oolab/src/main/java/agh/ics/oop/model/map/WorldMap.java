@@ -1,8 +1,10 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.worldElements.Animal;
+import agh.ics.oop.model.worldElements.AnimalBehavior;
+import agh.ics.oop.model.worldElements.WorldElement;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,6 +1,7 @@
 package agh.ics.oop;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.map.WorldMap;
+import agh.ics.oop.model.worldElements.Animal;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -1,11 +1,13 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.worldElements;
 
+import agh.ics.oop.model.MapDirection;
+import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.map.WorldMap;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class Animal implements WorldElement{
+public class Animal implements WorldElement {
     private final long ID;
     private MapDirection direction;
     private Vector2d position;
